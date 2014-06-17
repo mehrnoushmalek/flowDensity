@@ -1,0 +1,2 @@
+flowDensity is a supervised clustering algorithm based on density estimation techniques designed specifically to overcome the problems of manual gating.
+It automates the current practice of manual 2D gating and adjusts the gates for each FCS data file individually.
