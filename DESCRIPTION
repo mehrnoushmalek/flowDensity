@@ -1,0 +1,17 @@
+Package: flowDensity
+Type: Package
+Title: Sequential Flow Cytometry Data Gating
+Version: 0.99.8
+Date: 2012-01-04
+Author: M. Jafar Taghiyar, Mehrnoush Malek
+Maintainer: Mehrnoush Malek <mmalekes@bccrc.ca>
+Description: This package provides tools for automated sequential
+        gating analogous to the manual gating strategy based on the
+        density of the data.
+Imports: flowCore, graphics, car, gplots, RFOC, GEOmap, methods,
+        grDevices
+Depends: R (>= 2.10.0), methods
+License: Artistic-2.0
+biocViews: Bioinformatics, FlowCytometry, CellBiology, Clustering,
+        Cancer, FlowCytData, StemCells, DensityGating
+LazyLoad: yes
