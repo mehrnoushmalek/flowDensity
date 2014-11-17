@@ -22,7 +22,7 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
   }
   \item{n.sd}{
     an integer coefficient for the standard deviation
-    to determine the threshold based on the standard deviation if 'sh.threshold' is TRUE.
+    to determine the threshold based on the standard deviation if 'sd.threshold' is TRUE.
   }
   \item{use.percentile}{
     if TRUE, forces to return the 'percentile'th threshold.
