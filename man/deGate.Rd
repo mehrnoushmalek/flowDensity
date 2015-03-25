@@ -52,6 +52,10 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
     A number in [0,1] to exclude/include tiny peaks in density distribution.
   }
   
+   \item{adjust.dens}{
+    The smoothness of density in [0,1] to be used in density(.). The default value is 1 and should not be changed unless necessary
+
+  }
 }
 \value{
   an integer value (vector) of cutoff(s), i.e. threshold(s), on the specified channel

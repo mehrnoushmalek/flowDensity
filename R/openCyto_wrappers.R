@@ -101,7 +101,7 @@
           upper = upper[1], avg = avg[1], all.cut = all.cut[1], 
           sd.threshold = sd.threshold[1], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[1], 
-          tinypeak.removal = 1/25)
+          tinypeak.removal = 1/25,adjust.dens=1)
     }
     else if (!is.na(position[1])) 
       gates[1] <- flowDensity:::.densityGating(f = f, channel = channels[1], 
@@ -109,7 +109,7 @@
           upper = upper[1], avg = avg[1], all.cut = all.cut[1], 
           sd.threshold = sd.threshold[1], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[1], 
-          tinypeak.removal = 1/25)
+          tinypeak.removal = 1/25, adjust.dens=1)
     else gates[1] <- 0
   }
   if (is.na(gates[2])) {
@@ -133,7 +133,7 @@
           upper = upper[2], avg = avg[2], all.cut = all.cut[2], 
           sd.threshold = sd.threshold[2], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[2], 
-          tinypeak.removal = 1/25)
+          tinypeak.removal = 1/25,adjust.dens=1)
     }
     else if (!is.na(position[2])) 
       gates[2] <- flowDensity:::.densityGating(f = f, channel = channels[2], 
@@ -141,7 +141,7 @@
           upper = upper[2], avg = avg[2], all.cut = all.cut[2], 
           sd.threshold = sd.threshold[2], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[2], 
-          tinypeak.removal = 1/25)
+          tinypeak.removal = 1/25,adjust.dens=1)
     else gates[2] <- 0
   }
   new.f <- flowDensity:::.ellipseGating(flow.frame = f, channels = channels, 

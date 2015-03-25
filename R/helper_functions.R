@@ -1,5 +1,5 @@
 .densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE, percentile = 0.95, upper = NA, avg = FALSE,
-                           alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal){
+                           alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal, adjust.dens = 1){
   
   ##========================================================================================================================================
   ## 1D density gating method
@@ -17,13 +17,14 @@
   ##   all.cut: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
   ##   debris.gate: if TRUE, it would try to remove the debris and gate the lymphocyte cells
   ##   tiny.peak.removal: a values in [0,1] for ignoring tiny peaks in density
+  ##   adjust.dens: The smoothness of density, it is same as adjust in density(.).The default value is 1 and should not be changed unless necessary
   ## Value:
   ##   cutoffs, i.e. thresholds on the 1D data
   ## Author:
   ##   M. Jafar Taghiyar
   ##-----------------------------------------------------------------------------------------------------------------------------------------
   x <- exprs(f)[, channel]
-  dens <- .densityForPlot(x)
+  dens <- .densityForPlot(x, adjust.dens)
   stdev <- sd(x)
   med <- median(dens$x)
   if(is.numeric(channel))
@@ -206,7 +207,7 @@
   return(cell.population)
 }
 
-.deGatePlot <- function(f, cell.population, ...){
+.deGatePlot <- function(f, cell.population, adjust.dens,...){
   
   ##========================================================================================
   ## Plots the output of 2D density-estimate gating method
@@ -237,7 +238,7 @@
   
   ## Plot the pdf of channels[1]
   data.chan1 <- exprs(f)[,channels[1]]
-  dens.chan1 <- .densityForPlot(data.chan1)
+  dens.chan1 <- .densityForPlot(data.chan1, adjust.dens)
   plot(dens.chan1, xlim=range(data.chan1), type="l", frame.plot=F, axes=F, ann=F)
   
   ## Fill the pdf of channels[1]
@@ -251,7 +252,7 @@
   
   ## Plot the pdf of channels[2]
   data.chan2 <- exprs(f)[,channels[2]]
-  dens.chan2 <- .densityForPlot(data.chan2)
+  dens.chan2 <- .densityForPlot(data.chan2, adjust.dens)
   plot(dens.chan2$y, dens.chan2$x, ylim=range(data.chan2), xlim=rev(range(dens.chan2$y)),
        type="l", col=1, frame.plot=F, axes=F, ann=F)
   
@@ -494,8 +495,8 @@
   return(pts)
 }
 
-.densityForPlot <- function(data){
-  dens <- density(data[which(!is.na(data))])
+.densityForPlot <- function(data, adjust.dens=1){
+  dens <- density(data[which(!is.na(data))], adjust=adjust.dens)
   dens <- smooth.spline(dens$x, dens$y, spar=0.4)
   dens$y[which(dens$y<0)] <- 0
   return(dens)
