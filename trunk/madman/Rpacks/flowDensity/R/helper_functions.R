@@ -207,7 +207,7 @@
   return(cell.population)
 }
 
-.deGatePlot <- function(f, cell.population, adjust.dens,...){
+.deGatePlot <- function(f, cell.population, adjust.dens = 1,...){
   
   ##========================================================================================
   ## Plots the output of 2D density-estimate gating method
