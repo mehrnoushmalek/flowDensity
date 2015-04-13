@@ -31,7 +31,7 @@ setMethod(f="getflowFrame",
 
 setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           definition=function(x, y, ...){
-              .deGatePlot(f=x, cell.population=y, adjust.dens=adjust.dens,...)
+              .deGatePlot(f=x, cell.population=y, ...)
           }
           )
 
