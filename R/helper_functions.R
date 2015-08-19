@@ -110,7 +110,7 @@
     f <- nmRemove(f, col.nm)
   i <- which(!is.na(exprs(f)[,channels[1]]))
   if(length(i)==0)
-    stop('invalid flowFrame input: all NA values')
+    stop('invalid flowFrame input: This flowFrame has 0 cells')
   
   args <- names(list(...))
   eligible.args <- c('use.percentile', 'upper', 'avg', 'percentile', 'sd.threshold', 'n.sd',
