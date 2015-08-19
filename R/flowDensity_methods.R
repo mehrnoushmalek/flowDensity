@@ -60,7 +60,7 @@ deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percen
 }
 
 
-plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s = FALSE, outdir, file.name, devn= TRUE, ...){
+plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s = FALSE, outdir, file.name, ...){
 
     ##===================================================
     ## Plot flowCytometry data with density-based color
@@ -88,12 +88,10 @@ plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s =
             fn <- paste(channels[2], channels[1], sep="_")
         if(missing(outdir))
             outdir <- getwd()
-        bmp(filename=paste(outdir, fn, sep="/"), width=800, height=800);
+        png(filename=paste(outdir,"/" ,fn, ".png",sep=""), width=800, height=800);
         plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
         dev.off()
     }else{
-        if(devn)
-            dev.new()
         plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
     }
 }
