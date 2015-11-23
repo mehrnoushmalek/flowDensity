@@ -55,6 +55,8 @@
   		\item 'ellip.gate' if TRUE, it fits an ellipse on the data as a gate, otherwise the 
   		rectangle gating results are returned
   		
+      \item 'remove.neg' if TRUE, it removes negative values when removing margin events of scatter channels.
+      
   		\item 'scale' a value in [0,1) that scales the size of ellipse to fit if 'ellip.gate' is TRUE
 		
 		\item 'graphs' if TRUE, the ellipse is added to the current plot of the output of the 'flowDensity',
