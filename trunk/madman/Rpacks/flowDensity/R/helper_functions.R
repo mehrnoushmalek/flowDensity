@@ -88,7 +88,7 @@
 
 .deGate2D <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA),
                       upper=c(NA,NA), avg=c(F,F), alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-                      debris.gate=c(F,F), gates=c(NA,NA),all.cut=c(F,F), ...){
+                      debris.gate=c(F,F), gates=c(NA,NA),all.cut=c(F,F),remove.neg=F, ...){
   
   ##=========================================================================================================================
   ## 2D density gating method
@@ -107,7 +107,7 @@
   if(length(col.nm)==0)
     warning('No forward/side scatter channels found, margin events not removed.')
   else
-    f <- nmRemove(f, col.nm)
+    f <- nmRemove(f, col.nm,neg = remove.neg)
   i <- which(!is.na(exprs(f)[,channels[1]]))
   if(length(i)==0)
     stop('invalid flowFrame input: This flowFrame has 0 cells')
@@ -412,17 +412,21 @@
   d.y <- dens$y
   d.x <- dens$x
   slope <- c()
+  heights<- c()
   lo <- ifelse(upper, peak.ind+w, 1)
   up <- ifelse(upper, length(d.y)-w, peak.ind-w)
   
-  for(i in seq(from=lo,to=up,by=w))
+  for(i in seq(from=lo,to=up,by=w)){
     slope <- c(slope, abs((d.y[i+w]-d.y[i])/(d.x[i+w]-d.x[i])))
+    heights <-c(heights,d.y[i])
+  }
   ## try to estimate the optimum alpha using the distribution of slopes
   #   if(missing(alpha))
   #     alpha <- ifelse(sd(slope) < max(slope)/10, 0.01, 0.1)
   if(return.slope)
     return(slope)
   small.slopes <- which(slope < (max(slope)*alpha))
+  small.slopes <- small.slopes[which(heights[small.slopes] < .3*d.y[peak.ind])]
   len <- length(small.slopes)
   if(len==0)
     return(ifelse(upper, Inf, -Inf))
