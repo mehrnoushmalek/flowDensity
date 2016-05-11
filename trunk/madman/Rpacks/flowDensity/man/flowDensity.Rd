@@ -8,6 +8,14 @@
 \description{
   flowDensity is an automated clustering algorithm which aims to emulate the current practice of manual sequential gating.
   It is designed to identify the predefined cell subsets based on the density distribution of the parent cell population by analyzing the peaks of the density curve.
+  
+  When the density distribution has only one peak:
+  \itemize{
+  \item the first argument that would be used is the percentile, the default value is 95th.
+  \item If set to 'NA' then upper will be used when set to 'FALSE/TRUE'.
+  \item If both upper and percentiles are set to 'NA' sd.threshold is used when set to 'TRUE'.
+  \item If either all these arguments are 'NA', or one of them fails, the algorithm find the best cutoff based on the inflection points and by comparing the position of the peak and the mean of the population.
+}
 }
 \usage{
 	flowDensity(obj, channels, position, singlet.gate, ...)
@@ -33,6 +41,8 @@
   		\item 'percentile' a value in [0,1] that is used as the percentile if 'use.percentile' is TRUE.
 
   		\item 'upper' if 'TRUE', it finds the change in the slope after the peak with index 'peak.ind'.
+  		
+  		\item 'use.upper' if 'TRUE', forces to return the inflection point based on the first (last) peak if upper=F (upper=T)
 
   		\item 'sd.threshold' if TRUE, it uses 'n.sd' times standard deviation for gating.
 

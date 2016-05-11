@@ -1,5 +1,5 @@
-.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE, percentile = 0.95, upper = NA, avg = FALSE,
-                           alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal, adjust.dens = 1){
+.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE, use.upper=F, percentile = 0.95, upper = NA, avg = FALSE,
+                           alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal, adjust.dens = 1){
   
   ##========================================================================================================================================
   ## 1D density gating method
@@ -8,20 +8,21 @@
   ##   channel: a channel's name or an integer to specify the channel
   ##   n.sd: an integer that is multiplied to the standard deviation to determine the place of threshold if 'sd.threshold' is 'TRUE'
   ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
+  ##   use.upper: if True, forces to return the inflection point based on the first (last) peak if upper=F (upper=T)
   ##   percentile: a value in [0,1] that is used as the percentile. The default value is 0.95.
   ##   upper: if 'TRUE', it finds the change in the slope after the peak with index 'peak.ind'
   ##   avg: if TRUE, the mean of all identified cutoff points are used
   ##   alpha: a value in [0,1) specifying the significance of change in the slope which would be detected
   ##   sd.threshold: if TRUE, it uses 'n.sd' times standard deviation for gating
   ##   graphs: if TRUE, it plots the density as well as the threshold on the same plot
-  ##   all.cut: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
+  ##   all.cuts: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
   ##   debris.gate: if TRUE, it would try to remove the debris and gate the lymphocyte cells
   ##   tiny.peak.removal: a values in [0,1] for ignoring tiny peaks in density
   ##   adjust.dens: The smoothness of density, it is same as adjust in density(.).The default value is 1 and should not be changed unless necessary
   ## Value:
   ##   cutoffs, i.e. thresholds on the 1D data
-  ## Author:
-  ##   M. Jafar Taghiyar
+  ## Authors:
+  ##   M. Jafar Taghiyar & Mehrnoush Malek
   ##-----------------------------------------------------------------------------------------------------------------------------------------
   x <- exprs(f)[, channel]
   dens <- .densityForPlot(x, adjust.dens)
@@ -36,7 +37,7 @@
   len <- length(peaks)
   for(i in 1:(len-1))
     cutoffs[i] <- .getIntersect(dens, peaks[i], peaks[i+1])
-  if(all.cut & length(peaks)>1)
+  if(all.cuts & length(peaks)>1)
     return(cutoffs)
   if(avg)
     return(mean(cutoffs))
@@ -44,7 +45,7 @@
     cutoffs <- quantile(x, percentile, na.rm=T)
   else if(debris.gate) # Removes debris and gate Lymphocytes
     cutoffs <- max(quantile(x, 0.1, na.rm=T), min(cutoffs))
-  else if(!is.na(upper)){
+  else if(use.upper){
     peak.ind <- ifelse(upper, peak.ind[len], peak.ind[1])
     track.slope.cutoff <- .trackSlope(dens=dens, peak.ind=peak.ind, upper=upper, alpha=alpha)
     if(is.infinite(track.slope.cutoff))
@@ -53,9 +54,17 @@
       cutoffs <- track.slope.cutoff
   }
   else if(len==1){
-    if(!is.na(percentile))
+    print("Only one peak is found, set standard deviation, percentile, or upper arguments accordingly")
+    if(!is.na(percentile)){
       cutoffs <- quantile(x, percentile, na.rm=T)
-    else if (sd.threshold)
+    } else if (!is.na(upper))
+    {
+      track.slope.cutoff <- .trackSlope(dens=dens, peak.ind=peak.ind, upper=upper, alpha=alpha)
+      if(is.infinite(track.slope.cutoff))
+        cutoffs <- ifelse(upper, max(dens$x), min(dens$x))
+      else
+        cutoffs <- track.slope.cutoff
+    }else if (sd.threshold)
     {
       upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
       cutoffs <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
@@ -63,6 +72,7 @@
     else{
       flex.point <- .getFlex(dens=dens, peak.ind=peak.ind)
       if(!is.na(flex.point))
+        print("Cutoff is based on inflection point.")
         cutoffs <- flex.point
       else{
         if(is.na(upper))
@@ -70,6 +80,7 @@
         track.slope.cutoff <- .trackSlope(dens=dens, peak.ind=peak.ind, upper=upper, alpha=alpha)
         stdev.cutoff <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
         cutoffs <- ifelse(is.infinite(track.slope.cutoff)|sd.threshold, stdev.cutoff, track.slope.cutoff) # use the 's.threshold' if the gate from 'trackSlope()' is too loose
+        print(" cuttoff is based on tracking the slope and cpmparing the position of the peak and mean of the population.")
       }
     }
   }
@@ -86,9 +97,9 @@
   return(cutoffs)
 }
 
-.deGate2D <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA),
+.deGate2D <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), use.upper=c(F,F), percentile=c(NA,NA),
                       upper=c(NA,NA), avg=c(F,F), alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-                      debris.gate=c(F,F), gates=c(NA,NA),all.cut=c(F,F),remove.neg=F, ...){
+                      debris.gate=c(F,F), gates=c(NA,NA),all.cuts=c(F,F),remove.neg=F, ...){
   
   ##=========================================================================================================================
   ## 2D density gating method
@@ -96,7 +107,7 @@
   ##   f: a 'FlowFrame' object
   ##   channels: a vector of two channel names or their equivalent integer number
   ##   position: a vector of two logical values specifying the position of the cell subset of interest on the 2D plot
-  ##   use.percentile, upper, percentile, sd.threshold, n.sd, alpha: refer to the arguments of the '.densityGating(.)' function
+  ##   use.percentile, use.upper, upper, percentile, sd.threshold, n.sd, alpha: refer to the arguments of the '.densityGating(.)' function
   ##   ...: provides access to the arguments of the '.ellipseGating(.)' function
   ## Value:
   ##   a 'CellPopulation' object that includes the result of 2D gating
@@ -113,7 +124,7 @@
     stop('invalid flowFrame input: This flowFrame has 0 cells')
   
   args <- names(list(...))
-  eligible.args <- c('use.percentile', 'upper', 'avg', 'percentile', 'sd.threshold', 'n.sd',
+  eligible.args <- c('use.percentile', 'use.upper','upper', 'avg', 'percentile', 'sd.threshold', 'n.sd',
                      'use.control', 'control', 'alpha', 'debris.gate', 'scale', 'ellip.gate', 'graphs')
   if(length(setdiff(args, eligible.args)!=0))
     warning('unused argument(s): ', setdiff(args, eligible.args))
@@ -140,12 +151,12 @@
       else
         f.control1 <- nmRemove(f.control1, col.nm.control1)
       
-      gates[1] <- .densityGating(f=f.control1, channel=channels[1], use.percentile=use.percentile[1], percentile=percentile[1], upper=upper[1], avg=avg[1],
-                                 all.cut=all.cut[1],sd.threshold=sd.threshold[1], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[1],tinypeak.removal=1/25)
+      gates[1] <- .densityGating(f=f.control1, channel=channels[1], use.percentile=use.percentile[1], use.upper=use.upper[1], percentile=percentile[1], upper=upper[1], avg=avg[1],
+                                 all.cuts=all.cuts[1],sd.threshold=sd.threshold[1], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[1],tinypeak.removal=1/25)
     }
     else if(!is.na(position[1]))
-      gates[1] <- .densityGating(f=f, channel=channels[1], use.percentile=use.percentile[1], percentile=percentile[1], upper=upper[1], avg=avg[1],
-                                 all.cut=all.cut[1],sd.threshold=sd.threshold[1], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[1],tinypeak.removal=1/25)
+      gates[1] <- .densityGating(f=f, channel=channels[1], use.percentile=use.percentile[1], percentile=percentile[1],use.upper=use.upper[1], upper=upper[1], avg=avg[1],
+                                 all.cuts=all.cuts[1],sd.threshold=sd.threshold[1], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[1],tinypeak.removal=1/25)
     else
       gates[1] <- 0
   }
@@ -169,12 +180,12 @@
       else
         f.control2 <- nmRemove(f.control2, col.nm.control2)
       
-      gates[2] <- .densityGating(f=f.control2, channel=channels[2], use.percentile=use.percentile[2], percentile=percentile[2], upper=upper[2], avg=avg[2],
-                                 all.cut=all.cut[2],sd.threshold=sd.threshold[2], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[2],tinypeak.removal=1/25)
+      gates[2] <- .densityGating(f=f.control2, channel=channels[2], use.percentile=use.percentile[2], use.upper=use.upper[2],percentile=percentile[2], upper=upper[2], avg=avg[2],
+                                 all.cuts=all.cuts[2],sd.threshold=sd.threshold[2], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[2],tinypeak.removal=1/25)
     }
     else if(!is.na(position[2]))
-      gates[2] <- .densityGating(f=f, channel=channels[2], use.percentile=use.percentile[2], percentile=percentile[2], upper=upper[2], avg=avg[2],
-                                 all.cut=all.cut[2],sd.threshold=sd.threshold[2], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[2],tinypeak.removal=1/25)
+      gates[2] <- .densityGating(f=f, channel=channels[2], use.percentile=use.percentile[2], percentile=percentile[2],use.upper=use.upper[2], upper=upper[2], avg=avg[2],
+                                 all.cuts=all.cuts[2],sd.threshold=sd.threshold[2], n.sd=n.sd[1], alpha=alpha[1], debris.gate=debris.gate[2],tinypeak.removal=1/25)
     else
       gates[2] <- 0
   }
