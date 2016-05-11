@@ -11,7 +11,7 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(flow.frame, channels,  col, main, xlab, ylab, pch=".", s=FALSE, outdir, file.name, devn=TRUE, ...)
+plotDens(flow.frame, channels,  col, main, xlab, ylab, pch=".", s=FALSE, outdir, file.name, ...)
 }
 \arguments{
   \item{flow.frame}{
@@ -29,10 +29,6 @@ plotDens(flow.frame, channels,  col, main, xlab, ylab, pch=".", s=FALSE, outdir,
   }
   \item{file.name}{
     an optional string value used as the name for the saved file.
-  }
-  \item{devn}{
-    by default the output graph plots in a new device using dev.new()
-    function. If 'devn' is FALSE, plots the output on the current device.
   }
   \item{col}{
  	A specification for the default plotting color: see '?par'. 	

@@ -35,8 +35,8 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           }
           )
 
-deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, upper = NA,
-                   alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE,tinypeak.removal=1/25, adjust.dens=1){
+deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, upper = NA, use.upper=F,
+                   alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE,tinypeak.removal=1/25, adjust.dens=1){
 
     ##========================================================================================================================================
     ## 1D density gating method
@@ -47,16 +47,18 @@ deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percen
     ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
     ##   percentile: a value in [0,1] that is used as the percentile. the default is 0.95.
     ##   graphs: if TRUE, it plots the threshold on the density curve
-    ##   all.cut: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
+    ##   all.cuts: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
+    ##   upper: if TRUE, finds the change in the slope at the tail of the density curve, if FALSE, finds it at the head.
+    ##   use.upper: if TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T)
     ##   tiny.peak.removal: a values in [0,1] for ignoring tiny peaks in density. Default is 1/25
-    ##   adjust.dens: The smoothness of density, it is same as adjust in density(.).The default value is 1 and should not be changed unless necessary
+    ##   adjust.dens: The smoothness of density, it is same as adjust in density(.). The default value is 1 and should not be changed unless necessary
     ## Value:
     ##   cutoffs, i.e. thresholds on the 1D data
     ## Author:
-    ##   M. Jafar Taghiyar
+    ##   M. Jafar Taghiyar & Mehrnoush Malek
     ##-----------------------------------------------------------------------------------------------------------------------------------------
-    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, upper = upper,
-                   alpha = alpha, sd.threshold = sd.threshold, graphs = graphs, all.cut = all.cut,tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens)
+    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, upper = upper, use.upper=use.upper,
+                   alpha = alpha, sd.threshold = sd.threshold, graphs = graphs, all.cuts = all.cuts,tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens)
 }
 
 

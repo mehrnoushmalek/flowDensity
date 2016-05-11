@@ -120,6 +120,8 @@ parameters are set by providing following arguments in the
     flowDensity checks the tail (head) of the density distribution. If it is
     required to use \emph{upper} for one channel and not the other, the ``NA''
     value should be used; for example \emph{upper=c(FALSE,NA)}.
+    \item \emph{use.upper}: This argument is only used when the user wants to force the algorithm to use the upper argument no matter 
+    how many peaks are found in the density distribution.
   \item \emph{percentile}: This argument gets a value of $[0,1)$ and provides the ability to set a
     threshold based on the percentile of the density distribution. To
     force using this threshold, argument \emph{use.percentile} should
