@@ -10,7 +10,7 @@
 }
 \usage{
 deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, 
-		percentile = 0.95, upper = NA, alpha = 0.1, 
+		percentile = 0.95,use.upper=FALSE, upper = NA, alpha = 0.1, 
 		sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE, tinypeak.removal=1/25)
 }
 \arguments{
@@ -30,23 +30,27 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
   \item{percentile}{
     a value in [0,1] that is used as the percentile. The default value is 0.95.
   }
-  \item{upper}{
+   \item{upper}{
     if TRUE, finds the change in the slope at the tail of the density
-    curve, if FALSE, finds it at the head.
+    curve, if FALSE, finds it at the head. Default value is set to 'NA'.
+  }
+  
+  \item{use.upper}{
+    Logical. If TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T). Default value is set to 'FALSE'
   }
   \item{alpha}{
     a value in [0,1) specifying the significance of change in the slope
     being detected. This is by default 0.1, and typically need not be changed.
   }
   \item{sd.threshold}{
-    if TRUE, uses 'n.sd' times standard deviation as the threshold.
+    if TRUE, uses 'n.sd' times standard deviation as the threshold. Default value is set to 'FALSE'.
   }
   \item{graphs}{
     if TRUE, generates density distribution plot plus its corresponding threshold.
   }
-  \item{all.cut}{
+  \item{all.cuts}{
     if TRUE, returns all the identified cutoff points, i.e. potential thresholds
-    for that channel.
+    for that channel. Default value is set to 'FALSE'.
 }
   \item{tinypeak.removal}{
     A number in [0,1] to exclude/include tiny peaks in density distribution.
