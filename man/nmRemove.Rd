@@ -8,7 +8,7 @@
     Remove the margin events on the axes. Usually, these events are considered as debris or artifacts. This is specifically useful for 'FSC' and 'SSC' channels in a 'FlowFrame' object. However, any channel can be input as an argument. 
 }
 \usage{
-	nmRemove(flow.frame, channels, neg=TRUE, talk=FALSE)
+	nmRemove(flow.frame, channels, neg=FALSE, talk=FALSE)
 }
 \arguments{
   \item{flow.frame}{
