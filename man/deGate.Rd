@@ -11,7 +11,7 @@
 \usage{
 deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, 
 		percentile = 0.95,use.upper=FALSE, upper = NA, alpha = 0.1, 
-		sd.threshold = FALSE, graphs = FALSE, all.cut = FALSE, tinypeak.removal=1/25)
+		sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, tinypeak.removal=1/25, adjust.dens=1)
 }
 \arguments{
   \item{flow.frame}{
