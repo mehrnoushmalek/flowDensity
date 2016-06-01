@@ -54,7 +54,9 @@ of the function.
 
 Let assume for example that CD19 is on channel ``PerCP-Cy5-5-A'' and
 CD20 is on channel ``APC-H7-A''. Therefore, the
-corresponding input arguments are: \emph{channels=c(PerCP-Cy5-5-A, APC-H7-A)} and \emph{position=c(TRUE,FALSE)}.
+corresponding input arguments are:
+
+\emph{channels=c(PerCP-Cy5-5-A, APC-H7-A)} and \emph{position=c(TRUE,FALSE)}.
 
 In general, \emph{channels} argument can be set using either
 names of the channels or their corresponding indices (column numbers
@@ -88,7 +90,8 @@ data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 f
 lymph <- flowDensity(obj=f, channels=c('FSC-A', 'SSC-A'),
-                     position=c(TRUE, FALSE), upper= c(NA, TRUE), debris.gate=c(TRUE, FALSE))
+                     position=c(TRUE, FALSE), upper= c(NA, TRUE), 
+                     debris.gate=c(TRUE, FALSE))
 sglt  <- flowDensity(obj=lymph, singlet.gate=TRUE)
 bcell <- flowDensity(obj=sglt, channels=c(9, 3),
                      position=c(FALSE, NA))
@@ -193,11 +196,12 @@ tmp.cp1 <- flowDensity(obj=f2, channels=channels,
                       position=c(TRUE, FALSE), percentile=c(0.25, NA))
 # Second call to flowDensity
 tmp.cp2 <- flowDensity(obj=tmp.cp1, channels=channels,
-                       position=c(TRUE, FALSE), gates=c(FALSE, NA), percentile=c(NA, 0.85))
+                       position=c(TRUE, FALSE), gates=c(FALSE, NA), 
+                       percentile=c(NA, 0.85))
 # Final call to flowDensity
 lymph <- flowDensity(obj=f2, channels=channels,
-                     position=c(TRUE, FALSE), gates=c(tmp.cp1@gates[1], tmp.cp2@gates[2]),
-                     ellip.gate=TRUE, scale=.99)
+                     position=c(TRUE, FALSE), gates=c(tmp.cp1@gates[1], 
+                     tmp.cp2@gates[2]), ellip.gate=TRUE, scale=.99)
 @
 
 <<label=plotTmp1, include=F>>=
@@ -263,8 +267,8 @@ f3
 load(list.files(pattern = 'sampleFCS_3_FMO', data_dir, full = TRUE))
 f3.fmo
 f3.gated <- flowDensity(obj=f3, channels=c('BV421-A', 'FSC-A'),
-                        position = c(TRUE, NA),
-                        use.control = c(TRUE, F), control = c(f3.fmo, NA))
+                        position = c(TRUE, NA),use.control = c(TRUE, F)
+                        , control = c(f3.fmo, NA))
 f3.fmo.gated <- flowDensity(obj=f3.fmo, channels=c('BV421-A', 'FSC-A'),
                             position=c(TRUE, NA),
                             gates=c(f3.gated@gates[1], NA))
@@ -297,9 +301,9 @@ applied to the control sample. For example, the below example will gate using
 the 98th percentile in control data:
 <<fig=F>>=
 f3.gated.98p <- flowDensity(obj=f3, channels=c('BV421-A', 'FSC-A'),
-                            position = c(TRUE, NA),
-                            use.percentile = c(TRUE, NA), percentile = 0.98,
-                            use.control = c(TRUE, FALSE), control = c(f3.fmo, NA))
+                            position = c(TRUE, NA),use.percentile = c(TRUE, NA),
+                            percentile = 0.98, use.control = c(TRUE, FALSE),
+                            control = c(f3.fmo, NA))
 f3.fmo.gated.98p <- flowDensity(obj=f3.fmo, channels=c('BV421-A', 'FSC-A'),
                                 position = c(TRUE, NA),
                                 gates=c(f3.gated.98p@gates[1], NA))
