@@ -1,4 +1,4 @@
-.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE, use.upper=F, percentile = 0.95, upper = NA, avg = FALSE,
+.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA, avg = FALSE,
                            alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal, adjust.dens = 1){
   
   ##========================================================================================================================================
@@ -72,9 +72,10 @@
     else{
       flex.point <- .getFlex(dens=dens, peak.ind=peak.ind)
       if(!is.na(flex.point))
+      {
         print("Cutoff is based on inflection point.")
         cutoffs <- flex.point
-      else{
+      }else{
         if(is.na(upper))
           upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
         track.slope.cutoff <- .trackSlope(dens=dens, peak.ind=peak.ind, upper=upper, alpha=alpha)
