@@ -35,7 +35,7 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           }
           )
 
-deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, upper = NA, use.upper=F,
+deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, use.upper=FALSE, upper = NA,
                    alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE,tinypeak.removal=1/25, adjust.dens=1){
 
     ##========================================================================================================================================
@@ -57,7 +57,7 @@ deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percen
     ## Author:
     ##   M. Jafar Taghiyar & Mehrnoush Malek
     ##-----------------------------------------------------------------------------------------------------------------------------------------
-    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, upper = upper, use.upper=use.upper,
+    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,
                    alpha = alpha, sd.threshold = sd.threshold, graphs = graphs, all.cuts = all.cuts,tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens)
 }
 
@@ -119,7 +119,7 @@ notSubFrame <- function(flow.frame, channels, position = NA, gates, filter){
         .notSubFrame(flow.frame=flow.frame, channels=channels, filter=filter)
 }
 
-nmRemove <- function(flow.frame, channels, neg=F, talk=FALSE){
+nmRemove <- function(flow.frame, channels, neg=FALSE, talk=FALSE){
     ##===============================
     ## Removes negatives and margines and replaces them with NA
     ##-------------------------------
