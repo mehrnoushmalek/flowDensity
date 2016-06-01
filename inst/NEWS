@@ -1,1 +1,1 @@
-0.99.0: This is the initial version of the package.
+1.7.1: use.upper argument has been added to deGate() function for better handling of inflection point when there's more than 2 peaks.
