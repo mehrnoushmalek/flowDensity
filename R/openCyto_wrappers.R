@@ -58,10 +58,10 @@
 #' 
 #' @return a \code{polygonGate}
 .flowDensity.2d <- function (f, channels, position, n.sd = c(1.5, 1.5), use.percentile = c(F, 
-        F), percentile = c(NA, NA), upper = c(NA, NA), avg = c(F, 
+        F), percentile = c(NA, NA), percentile = .95, use.upper=c(F,F),upper = c(NA, NA), avg = c(F, 
         F), alpha = c(0.1, 0.1), sd.threshold = c(F, F), use.control = c(F, 
         F), control = c(NA, NA), debris.gate = c(F, F), gates = c(NA, 
-        NA), all.cut = c(F, F), ...) 
+        NA), all.cuts = c(F, F), ...) 
 {
   col.nm <- c(grep(colnames(f), pattern = "FSC"), grep(colnames(f), 
           pattern = "SSC"))
@@ -98,7 +98,7 @@
       else f.control1 <- flowDensity:::nmRemove(f.control1, col.nm.control1)
       gates[1] <- flowDensity:::.densityGating(f = f.control1, channel = channels[1], 
           use.percentile = use.percentile[1], percentile = percentile[1], 
-          upper = upper[1], avg = avg[1], all.cut = all.cut[1], 
+          upper = upper[1],use.upper=use.upper[1], avg = avg[1], all.cuts = all.cuts[1], 
           sd.threshold = sd.threshold[1], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[1], 
           tinypeak.removal = 1/25,adjust.dens=1)
@@ -106,7 +106,7 @@
     else if (!is.na(position[1])) 
       gates[1] <- flowDensity:::.densityGating(f = f, channel = channels[1], 
           use.percentile = use.percentile[1], percentile = percentile[1], 
-          upper = upper[1], avg = avg[1], all.cut = all.cut[1], 
+          upper = upper[1], use.upper=use.upper[1],avg = avg[1], all.cuts = all.cuts[1], 
           sd.threshold = sd.threshold[1], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[1], 
           tinypeak.removal = 1/25, adjust.dens=1)
@@ -130,7 +130,7 @@
       else f.control2 <- flowDensity:::nmRemove(f.control2, col.nm.control2)
       gates[2] <- flowDensity:::.densityGating(f = f.control2, channel = channels[2], 
           use.percentile = use.percentile[2], percentile = percentile[2], 
-          upper = upper[2], avg = avg[2], all.cut = all.cut[2], 
+          upper = upper[2], use.upper=use.upper[2],avg = avg[2], all.cuts = all.cuts[2], 
           sd.threshold = sd.threshold[2], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[2], 
           tinypeak.removal = 1/25,adjust.dens=1)
@@ -138,7 +138,7 @@
     else if (!is.na(position[2])) 
       gates[2] <- flowDensity:::.densityGating(f = f, channel = channels[2], 
           use.percentile = use.percentile[2], percentile = percentile[2], 
-          upper = upper[2], avg = avg[2], all.cut = all.cut[2], 
+          upper = upper[2],use.upper=use.upper[2], avg = avg[2], all.cuts = all.cuts[2], 
           sd.threshold = sd.threshold[2], n.sd = n.sd[1], 
           alpha = alpha[1], debris.gate = debris.gate[2], 
           tinypeak.removal = 1/25,adjust.dens=1)
