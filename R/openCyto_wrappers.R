@@ -58,7 +58,7 @@
 #' 
 #' @return a \code{polygonGate}
 .flowDensity.2d <- function (f, channels, position, n.sd = c(1.5, 1.5), use.percentile = c(F, 
-        F), percentile = c(NA, NA), percentile = .95, use.upper=c(F,F),upper = c(NA, NA), avg = c(F, 
+        F), percentile = c(NA, NA), use.upper=c(F,F),upper = c(NA, NA), avg = c(F, 
         F), alpha = c(0.1, 0.1), sd.threshold = c(F, F), use.control = c(F, 
         F), control = c(NA, NA), debris.gate = c(F, F), gates = c(NA, 
         NA), all.cuts = c(F, F), ...) 
