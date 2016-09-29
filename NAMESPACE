@@ -2,7 +2,7 @@
 export(flowDensity)
 export(plot, getflowFrame)
 export(.flowDensity)
-export(deGate, plotDens, notSubFrame, nmRemove)
+export(deGate, plotDens, notSubFrame, nmRemove,SubFrame)
 exportClass(CellPopulation)
 import(flowCore)
 import(gplots)
