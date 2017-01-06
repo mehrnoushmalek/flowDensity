@@ -35,7 +35,7 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           }
           )
 
-deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, use.upper=FALSE, upper = NA,
+deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, use.upper=FALSE, upper = NA,talk=TRUE,
                    alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE,tinypeak.removal=1/25, adjust.dens=1){
 
     ##========================================================================================================================================
@@ -57,7 +57,7 @@ deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percen
     ## Author:
     ##   M. Jafar Taghiyar & Mehrnoush Malek
     ##-----------------------------------------------------------------------------------------------------------------------------------------
-    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,
+    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,talk=talk,
                    alpha = alpha, sd.threshold = sd.threshold, graphs = graphs, all.cuts = all.cuts,tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens)
 }
 
