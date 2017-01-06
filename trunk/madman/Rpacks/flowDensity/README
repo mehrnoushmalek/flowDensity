@@ -1,2 +1,5 @@
 flowDensity is a supervised clustering algorithm based on density estimation techniques designed specifically to overcome the problems of manual gating.
 It automates the current practice of manual 2D gating and adjusts the gates for each FCS data file individually.
+
+There's an update on getflowFrame(.) when there's less than 2 cells. This is an error with flowCore package. If there's only one cell, it will be duplicated, and if all cells are NA, a flowFrame of size 2 with all values eual to -10 will be returned.
+Also when there is less than 3 cell, flowDensity doesn't gate anything. it just returns NA for filter and 0 for gates.
