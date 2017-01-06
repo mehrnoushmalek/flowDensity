@@ -1,4 +1,4 @@
-.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA, avg = FALSE,
+.densityGating <- function(f, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA, avg = FALSE,talk=TRUE,
                            alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, debris.gate = FALSE,tinypeak.removal=tinypeak.removal, adjust.dens = 1){
   
   ##========================================================================================================================================
@@ -25,6 +25,11 @@
   ##   M. Jafar Taghiyar & Mehrnoush Malek
   ##-----------------------------------------------------------------------------------------------------------------------------------------
   x <- exprs(f)[, channel]
+  if (length(x)<2)
+  {
+    print("Less than 2 cells, returning NA as a threshold.")
+    return(NA)
+  }
   dens <- .densityForPlot(x, adjust.dens)
   stdev <- sd(x)
   med <- median(dens$x)
@@ -54,7 +59,8 @@
       cutoffs <- track.slope.cutoff
   }
   else if(len==1){
-    print("Only one peak is found, set standard deviation, percentile, or upper arguments accordingly")
+    if(talk)
+      print("Only one peak is found, set standard deviation, percentile, or upper arguments accordingly")
     if(!is.na(percentile)){
       cutoffs <- quantile(x, percentile, na.rm=T)
     } else if (!is.na(upper))
@@ -72,8 +78,9 @@
     else{
       flex.point <- .getFlex(dens=dens, peak.ind=peak.ind)
       if(!is.na(flex.point))
-      {
-        print("Cutoff is based on inflection point.")
+      { 
+        if(talk)
+          print("Cutoff is based on inflection point.")
         cutoffs <- flex.point
       }else{
         if(is.na(upper))
@@ -81,7 +88,8 @@
         track.slope.cutoff <- .trackSlope(dens=dens, peak.ind=peak.ind, upper=upper, alpha=alpha)
         stdev.cutoff <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
         cutoffs <- ifelse(is.infinite(track.slope.cutoff)|sd.threshold, stdev.cutoff, track.slope.cutoff) # use the 's.threshold' if the gate from 'trackSlope()' is too loose
-        print(" cuttoff is based on tracking the slope and cpmparing the position of the peak and mean of the population.")
+        if(talk)
+          print(" cuttoff is based on tracking the slope and cpmparing the position of the peak and mean of the population.")
       }
     }
   }
@@ -123,7 +131,21 @@
   i <- which(!is.na(exprs(f)[,channels[1]]))
   if(length(i)==0)
     stop('invalid flowFrame input: This flowFrame has 0 cells')
-  
+  if(length(i)<3)
+  {
+    if(is.numeric(channels))
+      channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
+    cell.population <- new("CellPopulation",
+                           flow.frame=f,
+                           proportion=100,
+                           cell.count=length(i),
+                           channels=channels,
+                           position=position,
+                           gates=c(0,0),
+                           filter=as.matrix(NA),
+                           index=i)
+    return(cell.population)
+  }
   args <- names(list(...))
   eligible.args <- c('use.percentile', 'use.upper','upper', 'avg', 'percentile', 'sd.threshold', 'n.sd',
                      'use.control', 'control', 'alpha', 'debris.gate', 'scale', 'ellip.gate', 'graphs')
@@ -622,8 +644,22 @@
   ##   a flowFrame
   ##----------------------------------------------------------
   f <- obj@flow.frame
+  ind <- which(!is.na(exprs(f))[,1])
+  if (length(ind)==1)
+  {
+    print("Cannot make frames with 1 cell, duplicating the cell to make a flowFrame")
+    exprs(f) <- rbind(exprs(f)[ind,],exprs(f)[ind,])
+  }else if(length(ind)==0){
+    print("Cannot make frames with 0 cell, making a flowFrame of size 2, all values euqal to -10")
+    temp <- rbind(rep(-10,ncol(f)),rep(-10,ncol(f)))
+    colnames(temp) <- colnames(exprs(f))
+    exprs(f) <- temp
+  }else{
+    
   exprs(f) <- exprs(f)[which(!is.na(exprs(f))[,1]),]
+  }
   return(f)
+
 }
 
 .sngltGate <- function(cell.population){
