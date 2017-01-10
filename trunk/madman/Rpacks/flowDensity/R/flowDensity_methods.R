@@ -97,16 +97,7 @@ plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s =
         plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
     }
 }
-SubFrame <- function(flow.frame, channels, position, gates, filter){
-  new.f <- flow.frame
-  
-  if(missing(filter))
-    new.ind <- .subFrame(f=flow.frame, channels=channels, position=position, gates=gates)
-  else
-    new.ind <- .subFrame(f=flow.frame, channels=channels, position=NA,filter=filter)
-  exprs(new.f) <- exprs(new.f)[new.ind,]
-  return(new.f)
-}
+
 
 notSubFrame <- function(flow.frame, channels, position = NA, gates, filter){
 

@@ -10,7 +10,7 @@
 }
 \usage{
 deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, 
-		percentile = 0.95,use.upper=FALSE, upper = NA, alpha = 0.1, 
+		percentile = 0.95,use.upper=FALSE, upper = NA, talk=TRUE, alpha = 0.1, 
 		sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, tinypeak.removal=1/25, adjust.dens=1)
 }
 \arguments{
@@ -38,6 +38,11 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
   \item{use.upper}{
     Logical. If TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T). Default value is set to 'FALSE'
   }
+  
+  \item{talk}{
+    Logical. If TRUE, Prints a message if only one peak is found, or when inflection point is used to set the gates.
+  }
+  
   \item{alpha}{
     a value in [0,1) specifying the significance of change in the slope
     being detected. This is by default 0.1, and typically need not be changed.
