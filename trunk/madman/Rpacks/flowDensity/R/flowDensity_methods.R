@@ -1,26 +1,24 @@
 setMethod(f="flowDensity",
           signature=c("flowFrame", "ANY", "logical", "missing"),
           definition=function(obj, channels, position, ...){
-              .deGate2D(f=obj, channels=channels, position=position, ...)
+              .deGate2D(obj, channels=channels, position=position, ...)
           }
           )
 
 setMethod(f="flowDensity",
 	  signature=c("CellPopulation", "ANY", "logical", "missing"),
 	  definition=function(obj, channels, position, ...){
-              .deGate2D(f=obj@flow.frame, channels=channels, position=position, ...)
+              .deGate2D(obj@flow.frame, channels=channels, position=position, ...)
 	  }
           )
-
 setMethod(f="flowDensity",
-	  signature=c("CellPopulation", "missing", "missing", "logical"),
-	  definition=function(obj, singlet.gate){
-              if(singlet.gate)
-                  .sngltGate(obj)
-              else
-                  return(obj)
-	  }
-          )
+          signature=c("GatingHierarchy", "ANY", "logical", "ANY"),
+          definition=function(obj, channels, position, node,...){
+            .deGate2D(obj, channels=channels, position=position,node=node, ...)
+          }
+)
+
+
 
 setMethod(f="getflowFrame",
 	  signature=c("CellPopulation"),
@@ -35,39 +33,90 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           }
           )
 
-deGate <- function(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, percentile = .95, use.upper=FALSE, upper = NA,talk=TRUE,
-                   alpha = 0.1, sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE,tinypeak.removal=1/25, adjust.dens=1){
 
+deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
+                   bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
+                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...){
     ##========================================================================================================================================
     ## 1D density gating method
     ## Args:
-    ##   flow.frame: a 'FlowFrame' object
+    ##   obj: a 'FlowFrame' object, 'CellPopulation' or 'GatingHierarchy'
     ##   channel: a channel's name or an integer to specify the channel
     ##   n.sd: an integer that is multiplied to the standard deviation to determine the place of threshold if 'sd.threshold' is 'TRUE'
     ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
     ##   percentile: a value in [0,1] that is used as the percentile. the default is 0.95.
-    ##   graphs: if TRUE, it plots the threshold on the density curve
-    ##   all.cuts: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
-    ##   upper: if TRUE, finds the change in the slope at the tail of the density curve, if FALSE, finds it at the head.
     ##   use.upper: if TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T)
+    ##   upper: if TRUE, finds the change in the slope at the tail of the density curve, if FALSE, finds it at the head.
+    ##   verbose: When FALSE doesn't print any messages
+    ##   twin.factor: reverse of tinypeak.removal for ignoring twinpeaks
+    ##   bimodal: if TRUE, splits population closer to 50-50 when there are more than 2 peaks
+    ##   after.peak: if TRUE (FALSE) and bimodal=FALSE, it chooses a cuttoff after(before) the maximum peak.
+    ##   alpha: a value in [0,1) specifying the significance of change in the slope which would be detected
+    ##   sd.threshold: if TRUE, it uses 'n.sd' times standard deviation for gating
+    ##   all.cuts: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
     ##   tiny.peak.removal: a values in [0,1] for ignoring tiny peaks in density. Default is 1/25
+    ##   node: A character of the parent name to be excluded from gating hierarchy. Default is NA when x is flowFrame or CellPopulation object. Check getNodesof flowWorkspace
     ##   adjust.dens: The smoothness of density, it is same as adjust in density(.). The default value is 1 and should not be changed unless necessary
+    ##   count.lim: minimum limit for event count in order to calculate the threshold. Default is 20
     ## Value:
     ##   cutoffs, i.e. thresholds on the 1D data
     ## Author:
     ##   M. Jafar Taghiyar & Mehrnoush Malek
     ##-----------------------------------------------------------------------------------------------------------------------------------------
-    .densityGating(flow.frame, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,talk=talk,
-                   alpha = alpha, sd.threshold = sd.threshold, graphs = graphs, all.cuts = all.cuts,tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens)
+    if (class(obj)=="GatingHierarchy")
+      obj<-getData(obj,node)
+    if (class(obj)=="CellPopulation")
+      obj<-.getDataNoNA(obj)
+    .densityGating(flow.frame = obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
+                   twin.factor=twin.factor,bimodal=bimodal,after.peak=after.peak,alpha = alpha, sd.threshold = sd.threshold,all.cuts = all.cuts,
+                   tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude, ...)
 }
 
 
-plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s = FALSE, outdir, file.name, ...){
+getPeaks<- function(frame, channel,tinypeak.removal)
+{
+ ##===================================================
+  #Finding peaks for flowFrame objects
+ ##===================================================
+
+  data <- exprs(frame)[,channel]
+  if (length(data)<2){
+    print("Less than 2 cells, returning NA as a threshold.")
+    return(list(Peaks=NA, Dens=NA,Ind=NA))
+  }
+  dens <- density(data[which(!is.na(data))])
+  dens <- smooth.spline(dens$x, dens$y, spar=0.4)
+  dens$y[which(dens$y<0)] <- 0
+  return(.getPeaks(d = dens,peak.removal = tinypeak.removal))
+}
+
+plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ...){
 
     ##===================================================
     ## Plot flowCytometry data with density-based color
     ##---------------------------------------------------
+  
+      if (class(obj)=="GatingHierarchy")
+      {
+        if(!is.na(node))
+        {
+          flow.frame <-flowWorkspace:::getData(obj,node)
+        }else
+        {
+          warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
+          flow.frame <-flowWorkspace:::getData(obj)
+        }
+      }
+   if(class(obj)=="CellPopulation"){
+        flow.frame<-obj@flow.frame
+        
+      }else{
+    flow.frame<-obj
+  }
     f.exprs <- exprs(flow.frame)
+    na.ind <-which(is.na(f.exprs[,1]))
+    if(length(na.ind)>0)
+      f.exprs<-f.exprs[-na.ind,]
     f.data <- pData(parameters(flow.frame))
     f.col.names <- colnames(flow.frame)
 
@@ -83,55 +132,75 @@ plotDens <- function(flow.frame, channels, col, main, xlab, ylab, pch = ".", s =
         ylab <- paste("<", channels[2], ">:", f.data$desc[which(f.col.names==channels[2])], sep = "")
     if(missing(main))
         main <- "All Events"
-    if(s){
-        if(!missing(file.name))
-            fn <- paste(file.name, channels[2], channels[1], sep="_")
-        else
-            fn <- paste(channels[2], channels[1], sep="_")
-        if(missing(outdir))
-            outdir <- getwd()
-        png(filename=paste(outdir,"/" ,fn, ".png",sep=""), width=800, height=800);
         plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
-        dev.off()
-    }else{
-        plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
-    }
 }
 
 
-notSubFrame <- function(flow.frame, channels, position = NA, gates, filter){
+notSubFrame <- function(obj, channels, position = NA, gates, filter){
 
     ##===============================================================
     ## Excludes the subframe gated by 'gates' form given 'flow.frame'
     ##---------------------------------------------------------------
-    if(missing(filter))
+  if (class(obj)=="CellPopulation")
+    flow.frame <- obj@flow.frame
+  else if (class(obj)=="flowFrame")
+    flow.frame <- obj
+  else
+    stop("Input should be either a cellPopulation or flowFrame.")
+   if(missing(filter))
         .notSubFrame(flow.frame=flow.frame, channels=channels, position=position, gates=gates)
     else
-        .notSubFrame(flow.frame=flow.frame, channels=channels, filter=filter)
+          .notSubFrame(flow.frame=flow.frame, channels=channels, filter=filter)
 }
 
-nmRemove <- function(flow.frame, channels, neg=FALSE, talk=FALSE){
+nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=F){
     ##===============================
     ## Removes negatives and margines and replaces them with NA
     ##-------------------------------
+  
+    inds<-vector("list",length(channels))
+    names(inds)<-channels
     new.f <- flow.frame
     for(chan in channels){
+      j<-chan
         if(is.character(chan))
-            chan <- which(colnames(flow.frame)==chan)
-        if(length(chan)==0)
+            j <- which(colnames(flow.frame)==chan)
+        if(length(j)==0)
             next
-        d <- exprs(new.f)[,chan]
-        m <- new.f@parameters@data$maxRange[chan]
+        d <- exprs(new.f)[,j]
+        m <- new.f@parameters@data$maxRange[j]
         if(neg)
             i <- which(d > 0 & d != m)
         else
             i <- which(d != m)
         exprs(new.f)[i, ] <- exprs(new.f)[i,]
-        if (talk)
+        if (verbose)
           cat(length(which(!is.na(d)))-length(i), "Margin events removed from",colnames(new.f)[chan],"\n")
         exprs(new.f)[-i,] <- NA
+        inds[[chan]]<-which( is.na(exprs(new.f)[,1]))
     }
+    if(return.ind)
+       return(inds)
+    exprs(new.f) <- exprs(new.f)[which(!is.na(exprs(new.f))[,1]),]
     return(new.f)
 }
 
+getPeaks <-  function(frame,chans,tinypeak.removal=tinypeak.removal){
 
+  x <- exprs(frame)[, chans]
+  n<- which(!is.na(x))
+  if (length(n)< 3)
+  {
+    if(verbose)
+      cat("Less than 3 cells, returning NA as a Peak.","\n")
+    return(NA)
+  }
+  dens <- .densityForPlot(data = x, adjust.dens=1,...)
+  stdev <- sd(x,na.rm = T)
+  med <- median(dens$x,na.rm = T)
+  if(is.numeric(channel))
+    channel <- colnames(frame)[chans]
+  cutoffs <- c()
+  all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
+  return(all.peaks)
+}
