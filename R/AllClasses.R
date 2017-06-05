@@ -6,5 +6,6 @@ setClass("CellPopulation", representation(flow.frame="flowFrame",
                                           gates="numeric",
 					  filter="matrix",
 					  index="numeric"
+
 )
 )
