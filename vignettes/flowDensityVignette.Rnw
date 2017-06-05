@@ -77,10 +77,10 @@ latter is a ``flowFrame'' object loaded from flowCore namespace.
 \section{Examples}
 In this section we present several examples to elaborate how to use the
 \emph{flowDensity(.)} function.
-\subsection{Extracting lympchocytes/Singlets/Bcell}
+\subsection{Extracting Bcell}
 This example shows how to use flowDensity to extract B cells by using
-the gating strategy lymphocytes/viability-CD3-/CD19+CD20+ or
-equivalently lymphocytes/singlets/Bcell. The Figure \ref{fig:bcell} shows this gating.
+the gating strategy Singlet/viability-CD3-/CD19+CD20+ or
+equivalently lsinglets/Bcell. The Figures \ref{fig:sngl}-\ref{fig:bcell} show this.
 
 <<>>=
 library(flowCore)
@@ -89,16 +89,30 @@ library(GEOmap)
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 f
-lymph <- flowDensity(obj=f, channels=c('FSC-A', 'SSC-A'),
-                     position=c(TRUE, FALSE), upper= c(NA, TRUE), 
-                     debris.gate=c(TRUE, FALSE))
-sglt  <- flowDensity(obj=lymph, singlet.gate=TRUE)
-bcell <- flowDensity(obj=sglt, channels=c(9, 3),
+sngl <- flowDensity(f,channels = c("FSC-A","FSC-H"),position = c(F,F),
+                    percentile =c(.99999,.99999),use.percentile = c(T,T),
+                    ellip.gate = T,scale = .99 )
+@
+
+<<label=plotsngl, fig=F>>=
+plotDens(f,c(1,2))
+lines(sngl@filter,type="l")
+@
+\begin{figure}[h]
+\begin{center}
+<<fig=T, echo=F, width=6>>=
+<<plotsngl>>
+@
+\end{center}
+caption{Gating singlets using ellipsoid gating}
+\label{fig:sngl}
+<<>>=
+bcell <- flowDensity(sngl, channels=c(9, 3),
                      position=c(FALSE, NA))
 @
 
 <<label=plotBcell, fig=F>>=
-plot(getflowFrame(sglt), bcell)
+plot(getflowFrame(sngl), bcell)
 @
 
 \begin{figure}[h]
@@ -143,8 +157,7 @@ points(plasmablasts@filter, type='l', col=2, lwd=2)
 @
 
 <<label=plotPlasmablasts, fig=F, echo=F>>=
-#devn=FALSE is used so that Sweave can save the plot as pdf
-plotDens(getflowFrame(CD19pCD20n), plasmablasts@channels, pch=19, devn=FALSE)
+plotDens(getflowFrame(CD19pCD20n), plasmablasts@channels, pch=19)
 points(plasmablasts@filter, type='l', col=2, lwd=2)
 @
 
@@ -181,7 +194,7 @@ flowFrame of a CellPopulation object.
 \subsection{Multiple calls for a single cell population identification}
 <<>>=
 f <- nmRemove(f, c("FSC-A", "SSC-A"))
-#plotDens(f, c("FSC-A", "SSC-A"), devn=F)
+#plotDens(f, c("FSC-A", "SSC-A"))
 #plot(f, lymph)
 @
 flowDensity can be used recursively to gate a cell population of interest.
@@ -213,7 +226,7 @@ plot(f2, tmp.cp2)
 @
 
 <<plotFinalLymph2, fig=F>>=
-plotDens(flow.frame=f2, channels=channels, devn=F)
+plotDens(f2, channels=channels)
 points(lymph@filter, type="l", col=2, lwd=2)
 @
 
@@ -273,6 +286,8 @@ f3.fmo.gated <- flowDensity(obj=f3.fmo, channels=c('BV421-A', 'FSC-A'),
                             position=c(TRUE, NA),
                             gates=c(f3.gated@gates[1], NA))
 @
+
+When only one peak is present in density, flowDensity prints out a message that can be spressed by verbose=FALSE for each of the marker. This message infroms you about how cutoff was calculated based on the present arguments (percentile, upper, sd.threshold).
 
 <<label=fmoDefault1, fig=F>>=
 plot(f3.fmo, f3.fmo.gated)
@@ -335,5 +350,33 @@ Figure \ref{fig:fmoPercentile} Shows the gating based on 98th percentile gate in
 \underline{Note:} When using controls, setting \emph{position=TRUE} will treat the data as
 a negative control and extract the population above the threshold. Setting
 \emph{position=FALSE} will treat it as a positive control.
+
+\subsection{Selecting threshold using deGate()}
+Another option beside flowDensity is deGate() function, which gives better control over cutoffs.
+The output is either a number or a vector of all possible cutoffs if all.cuts=T.
+In the example below, some of the possibilities are provided 
+<<fig=F>>=
+load(list.files(pattern = 'sampleFCS_2', data_dir, full = TRUE))
+thresholds <- deGate(obj = f2,channel = 9)
+#Percentile default is .95, which can be changed
+thresholds.prcnt <- deGate(f2,channel = 9,use.percentile=T,percentile=.3) 
+thresholds.lo <- deGate(f2,channel = 9,use.upper=T,upper=F,alpha = .9)
+thresholds.hi <- deGate(f2,channel = 9,use.upper=T,upper=T,alpha = .9)
+@
+
+<<label=deGate, fig=F>>=
+plotDens(f2,c(9,12))
+abline(v=c(thresholds,thresholds.prcnt,thresholds.lo,thresholds.hi),col=c(1,2,3,4))
+@
+\begin{figure}[h]
+  \begin{center}
+<<fig=T, echo=F, width=6>>=
+<<deGate>>
+@
+
+\end{center}
+\caption{using upper,percentile and default of deGate}
+\label{fig:deGate}
+\end{figure}
 
 \end{document}
