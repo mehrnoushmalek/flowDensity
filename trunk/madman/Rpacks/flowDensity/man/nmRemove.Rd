@@ -8,7 +8,7 @@
     Remove the margin events on the axes. Usually, these events are considered as debris or artifacts. This is specifically useful for 'FSC' and 'SSC' channels in a 'FlowFrame' object. However, any channel can be input as an argument. 
 }
 \usage{
-	nmRemove(flow.frame, channels, neg=FALSE, talk=FALSE)
+	nmRemove(  flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=FALSE)
 }
 \arguments{
   \item{flow.frame}{
@@ -20,12 +20,15 @@
   \item{neg}{
   	if TRUE, negative events are also removed
   }
-\item{talk}{
+\item{verbose}{
  if TRUE, it prints the margin event in each channel
+}
+\item{return.ind}{
+ if TRUE, it return indices of margin events for each channel.
 }
 }
 \value{
-  a 'FlowFrame' object.
+  a 'FlowFrame' object, or a 'list' of indices identifying margin events for each channel.
 }
 
 

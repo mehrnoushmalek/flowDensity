@@ -9,13 +9,12 @@
     data based on its density distribution.
 }
 \usage{
-deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE, 
-		percentile = 0.95,use.upper=FALSE, upper = NA, talk=TRUE, alpha = 0.1, 
-		sd.threshold = FALSE, graphs = FALSE, all.cuts = FALSE, tinypeak.removal=1/25, adjust.dens=1)
+deGate(x,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98, bimodal=T,after.peak=NA,alpha = 0.1, sd.threshold = FALSE,
+all.cuts = FALSE, tinypeak.removal=tinypeak.removal,node=NA, adjust.dens = 1,count.lim=20)
 }
 \arguments{
-  \item{flow.frame}{
-  	a 'FlowFrame' object.
+  \item{x}{
+  	a 'FlowFrame','CellPopulation' or 'GatingHierarchy' object.
   }
   \item{channel}{
     a channel's name or its corresponding index in the 'flow.frame'.
@@ -30,17 +29,27 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
   \item{percentile}{
     a value in [0,1] that is used as the percentile. The default value is 0.95.
   }
+    \item{use.upper}{
+    Logical. If TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T). Default value is set to 'FALSE'
+  }
+  
    \item{upper}{
     if TRUE, finds the change in the slope at the tail of the density
     curve, if FALSE, finds it at the head. Default value is set to 'NA'.
   }
   
-  \item{use.upper}{
-    Logical. If TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T). Default value is set to 'FALSE'
+  \item{verbose}{
+    Logical. If TRUE, Prints a message if only one peak is found, or when inflection point is used to set the gates.
+  }
+   \item{twin.factor}{
+    a value in [0,1] that is used to exclude twinpeaks
   }
   
-  \item{talk}{
-    Logical. If TRUE, Prints a message if only one peak is found, or when inflection point is used to set the gates.
+     \item{bimodal}{
+     Logical. If TRUE, it returns a cutoff that splits population closer to 50-50, when there are more than two peaks.
+  }
+      \item{after.peak}{
+     Logical. If TRUE, it returns a cutoff that is after the maximum peaks, when there are more than two peaks.
   }
   
   \item{alpha}{
@@ -50,9 +59,7 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
   \item{sd.threshold}{
     if TRUE, uses 'n.sd' times standard deviation as the threshold. Default value is set to 'FALSE'.
   }
-  \item{graphs}{
-    if TRUE, generates density distribution plot plus its corresponding threshold.
-  }
+ 
   \item{all.cuts}{
     if TRUE, returns all the identified cutoff points, i.e. potential thresholds
     for that channel. Default value is set to 'FALSE'.
@@ -61,9 +68,17 @@ deGate(flow.frame, channel, n.sd=1.5, use.percentile = FALSE,
     A number in [0,1] to exclude/include tiny peaks in density distribution.
   }
   
+  \item{node}{
+   A character defining the parent population when extracting data from GatingHierarchy. 
+  }
+  
    \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
 
+  }
+  
+  \item{count.lim}{
+   minimum limit for events count in order to calculate the threshold. Default is 20, returning NA as threshold.
   }
 }
 \value{
@@ -82,6 +97,9 @@ abline(h=cd19.gate,lty=3,col=2)
 
 
 \author{
-  Jafar Taghiyar \email{<jtaghiyar@bccrc.ca>}
+  Mehrnoush Malek \email{<mmalekes@bccrc.ca>}
 }
 
+\seealso{
+\code{\link{getflowFrame}} \code{\link{notSubFrame}} \code{\link{flowDensity}}
+}
