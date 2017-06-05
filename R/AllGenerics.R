@@ -3,7 +3,7 @@ if(!isGeneric("flowDensity")){
   setGeneric("flowDensity", function(obj,
                                      channels,
                                      position,
-				     singlet.gate,
+                                     node,
                                      ...)
     standardGeneric("flowDensity")
   )
