@@ -11,7 +11,7 @@
     of a cell population in the input flow cytometry data.
 }
 \usage{
-notSubFrame(flow.frame, channels, position, gates, filter)
+notSubFrame(flow.frame, channels, position = NA, gates, filter)
 }
 \arguments{
   \item{flow.frame}{
@@ -38,7 +38,7 @@ notSubFrame(flow.frame, channels, position, gates, filter)
 }
 
 \author{
-  Jafar Taghiyar \email{<jtaghiyar@bccrc.ca>}
+  Mehrnoush Malek \email{<mmalekes@bccrc.ca>}
 }
 \examples{
 
