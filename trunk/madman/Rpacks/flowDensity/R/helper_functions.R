@@ -137,11 +137,11 @@
   {
     if(!is.na(node))
     {
-      f <-flowWorkspace:::getData(f,node)
+      f <-flowWorkspace::getData(f,node)
     }else
       {
         warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-        f <-flowWorkspace:::getData(f)
+        f <-flowWorkspace::getData(f)
       }
   }
   i <- which(!is.na(exprs(f)[,channels[1]]))
@@ -763,8 +763,8 @@ return.bimodal<-function(x,cutoffs)
 
     poly2 <- SpatialPolygons(list(Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
 
-    if(rgeos:::gIntersects( poly1, poly2)){
-       temp <-rgeos:::gDifference(poly1,poly2)
+    if(rgeos::gIntersects( poly1, poly2)){
+       temp <-rgeos::gDifference(poly1,poly2)
        filter<-temp@polygons[[1]]@Polygons[[1]]@coords
     }
   }else
