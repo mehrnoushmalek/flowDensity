@@ -11,25 +11,19 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(flow.frame, channels,  col, main, xlab, ylab, pch=".", s=FALSE, outdir, file.name, ...)
+plotDens(obj, channels,node=NA ,  col, main, xlab, ylab, pch=".", ...)
 }
 \arguments{
-  \item{flow.frame}{
-  	a 'FlowFrame' object.
+  \item{obj}{
+  	a 'FlowFrame','GatingHierarchy' or 'cellPopulation' object.
   }
   \item{channels}{
     a vector of two channel names or their corresponding indices in the 'flow.frame'.
   }
-  \item{s}{
-    logical variable, if TRUE the output graph is saved.
+  \item{node}{
+   Only used if gatingHierarchy is provided as an input.It subtractes the flowFrame from the node of gatingHierarchy. see getNodes() in flowWorkspace.
   }
-  \item{outdir}{
-    an optional string value specifying the output directory for saving the graph
-    if 's' is TRUE.
-  }
-  \item{file.name}{
-    an optional string value used as the name for the saved file.
-  }
+  
   \item{col}{
  	A specification for the default plotting color: see '?par'. 	
   }
@@ -57,8 +51,9 @@ plotDens(flow.frame, channels,  col, main, xlab, ylab, pch=".", s=FALSE, outdir,
 }
 
 \author{
+Mehrnoush Malek \email{<mmalekes@bccrc.ca>}
   Jafar Taghiyar \email{<jtaghiyar@bccrc.ca>}
-  Mehrnoush Malek \email{<mmalekes@bccrc.ca>}
+  
 }
 
 \examples{

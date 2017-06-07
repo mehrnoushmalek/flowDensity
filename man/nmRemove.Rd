@@ -9,6 +9,7 @@
 }
 \usage{
 	nmRemove(  flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=FALSE)
+
 }
 \arguments{
   \item{flow.frame}{
@@ -42,7 +43,7 @@
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_2', data_dir, full = TRUE))
 #Removing margin events of FSC-A and SSC-A channels
-no.margin <- nmRemove(f2, c("FSC-A","SSC-A"),talk=TRUE)
+no.margin <- nmRemove(f2, c("FSC-A","SSC-A"),verbose=TRUE)
 plotDens(f2, c("FSC-A","SSC-A"))
 # Scatter plot of FSC-A vs. SSC-A after removing margins
 plotDens(no.margin, c("FSC-A","SSC-A"))
