@@ -8,7 +8,7 @@
     Find all peaks in density along with their indices
 }
 \usage{
-getPeaks(frame,channel, tiny.peak.removal)
+getPeaks(frame, channel,tinypeak.removal=1/25,...)
 }
 \arguments{
   \item{frame}{
@@ -21,6 +21,10 @@ getPeaks(frame,channel, tiny.peak.removal)
   \item{tinypeak.removal}{
     A number in [0,1] to exclude/include tiny peaks in density distribution.
   }
+
+ \item{...}{
+   Arguments passed to smoothSpline function, spar is 0.4.
+  }
   
  
 }
@@ -32,7 +36,7 @@ getPeaks(frame,channel, tiny.peak.removal)
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 #Find the threshold for CD20
-peaks <- getPeaks(f,channel="PerCP-Cy5-5-A",tiny.peak.removal=1/30)
+peaks <- getPeaks(f,channel="PerCP-Cy5-5-A",tinypeak.removal=1/30)
 peaks
 }
 
