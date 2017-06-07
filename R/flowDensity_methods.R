@@ -72,23 +72,29 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
                    tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude, ...)
 }
 
-
-getPeaks<- function(frame, channel,tinypeak.removal)
-{
+getPeaks <-  function(frame, channel,tinypeak.removal=1/25,...){
  ##===================================================
   #Finding peaks for flowFrame objects
- ##===================================================
-
-  data <- exprs(frame)[,channel]
-  if (length(data)<2){
-    print("Less than 2 cells, returning NA as a threshold.")
-    return(list(Peaks=NA, Dens=NA,Ind=NA))
+ ##==================================================
+  x <- exprs(frame)[, channel]
+  n<- which(!is.na(x))
+  if (length(n)< 3)
+  {
+    if(verbose)
+      cat("Less than 3 cells, returning NA as a Peak.","\n")
+    return(NA)
   }
-  dens <- density(data[which(!is.na(data))])
-  dens <- smooth.spline(dens$x, dens$y, spar=0.4)
-  dens$y[which(dens$y<0)] <- 0
-  return(.getPeaks(d = dens,peak.removal = tinypeak.removal))
+  dens <- .densityForPlot(data = x, adjust.dens=1,...)
+  stdev <- sd(x,na.rm = T)
+  med <- median(dens$x,na.rm = T)
+  if(is.numeric(channel))
+    channel <- colnames(frame)[channel]
+  cutoffs <- c()
+  all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
+  return(all.peaks)
 }
+
+
 
 plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ...){
 
@@ -100,11 +106,11 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
       {
         if(!is.na(node))
         {
-          flow.frame <-flowWorkspace:::getData(obj,node)
+          flow.frame <-flowWorkspace::getData(obj,node)
         }else
         {
           warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-          flow.frame <-flowWorkspace:::getData(obj)
+          flow.frame <-flowWorkspace::getData(obj)
         }
       }
    if(class(obj)=="CellPopulation"){
@@ -153,7 +159,7 @@ notSubFrame <- function(obj, channels, position = NA, gates, filter){
           .notSubFrame(flow.frame=flow.frame, channels=channels, filter=filter)
 }
 
-nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=F){
+nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=FALSE){
     ##===============================
     ## Removes negatives and margines and replaces them with NA
     ##-------------------------------
@@ -185,22 +191,4 @@ nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=F
     return(new.f)
 }
 
-getPeaks <-  function(frame,chans,tinypeak.removal=tinypeak.removal){
 
-  x <- exprs(frame)[, chans]
-  n<- which(!is.na(x))
-  if (length(n)< 3)
-  {
-    if(verbose)
-      cat("Less than 3 cells, returning NA as a Peak.","\n")
-    return(NA)
-  }
-  dens <- .densityForPlot(data = x, adjust.dens=1,...)
-  stdev <- sd(x,na.rm = T)
-  med <- median(dens$x,na.rm = T)
-  if(is.numeric(channel))
-    channel <- colnames(frame)[chans]
-  cutoffs <- c()
-  all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
-  return(all.peaks)
-}

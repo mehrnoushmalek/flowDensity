@@ -70,12 +70,12 @@
     print("HHH")
     if(node!='root')
     {
-      f <-flowWorkspace:::getData(f,node)
+      f <-flowWorkspace::getData(f,node)
       print("yyyyy")
     }else
     {
       warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-      f <-flowWorkspace:::getData(f,node)
+      f <-flowWorkspace::getData(f,node)
     }
   }
   col.nm <- c(grep(colnames(f), pattern = "FSC"), grep(colnames(f), 
@@ -103,6 +103,24 @@
   if (is.na(gates[1]) & is.na(gates[2]) & is.na(position[1]) & 
       is.na(position[2])) 
     stop("Improper 'position' value, one position must be not 'NA' or 'gates' should be provided")
+if (is.matrix(filter))
+  {
+    inds <-.subFrame(f=f, channels, position=NA, gates, filter,include.equal=F)
+    if(is.numeric(channels))
+      channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
+    cell.population  <- new("CellPopulation", flow.frame=f, channels=channels, position=c(NA,NA))
+    exprs(cell.population@flow.frame)[-inds, ] <- NA
+    cell.population@cell.count <- length(inds)
+    cell.population@position <-position
+    cell.population@proportion <- length(inds)/length(exprs(f)[,channels[1]]) * 100
+    cell.population@filter <- filter
+    cell.population@index<- inds
+    g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
+    g2<-ifelse(is.na(position[2]),yes = NA,no=ifelse(test = position[2],yes =min(filter[,2]),no = max(filter[,2]) ))
+    cell.population@gates <- c(g1,g2)
+    return(cell.population)
+    
+  }else{
   if (is.na(gates[1])) {
     if (use.control[1] & !is.na(position[1])) {
       if (is.na(control[1])) 
@@ -166,6 +184,7 @@
                                                sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],
                                                tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
     else gates[2] <- 0
+  }
   }
   new.f <- flowDensity:::.ellipseGating(flow.frame = f, channels = channels, 
       position = position, gates = gates, ...)
