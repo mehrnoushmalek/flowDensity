@@ -9,12 +9,12 @@
     data based on its density distribution.
 }
 \usage{
-deGate(x,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98, bimodal=T,after.peak=NA,alpha = 0.1, sd.threshold = FALSE,
-all.cuts = FALSE, tinypeak.removal=tinypeak.removal,node=NA, adjust.dens = 1,count.lim=20)
+deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98, bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE,
+all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...)
 }
 \arguments{
-  \item{x}{
-  	a 'FlowFrame','CellPopulation' or 'GatingHierarchy' object.
+  \item{obj}{
+  	 obj: a 'FlowFrame' object, 'CellPopulation' or 'GatingHierarchy'
   }
   \item{channel}{
     a channel's name or its corresponding index in the 'flow.frame'.
@@ -80,6 +80,15 @@ all.cuts = FALSE, tinypeak.removal=tinypeak.removal,node=NA, adjust.dens = 1,cou
   \item{count.lim}{
    minimum limit for events count in order to calculate the threshold. Default is 20, returning NA as threshold.
   }
+
+ \item{magnitude}{
+   A value between 0 and 1, for tracking a slope and reporting changes that are smaller than magnitude*peak_height
+  }
+
+\item{...}{
+   Extra arguments to be passed to smoothSpline function.
+  }
+
 }
 \value{
   an integer value (vector) of cutoff(s), i.e. threshold(s), on the specified channel

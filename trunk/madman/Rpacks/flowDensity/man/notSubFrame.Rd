@@ -11,11 +11,11 @@
     of a cell population in the input flow cytometry data.
 }
 \usage{
-notSubFrame(flow.frame, channels, position = NA, gates, filter)
+notSubFrame(obj, channels, position = NA, gates, filter)
 }
 \arguments{
-  \item{flow.frame}{
-  	a 'FlowFrame' object.
+  \item{obj}{
+  	a 'FlowFrame' or 'cellPopulation' object.
   }
   \item{channels}{
     a vector of two channel names or their corresponding indices in the 'flow.frame'.
