@@ -94,36 +94,39 @@ sngl <- flowDensity(f,channels = c("FSC-A","FSC-H"),position = c(F,F),
                     ellip.gate = T,scale = .99 )
 @
 
-<<label=plotsngl, fig=F>>=
+<<label=plotsngl, include=F>>=
 plotDens(f,c(1,2))
 lines(sngl@filter,type="l")
 @
 \begin{figure}[h]
 \begin{center}
-<<fig=T, echo=F, width=6>>=
+<<label=fig1,fig=TRUE, echo=FALSE, width=6>>=
 <<plotsngl>>
 @
 \end{center}
-caption{Gating singlets using ellipsoid gating}
+\caption{Gating singlets using ellipsoid gating}
 \label{fig:sngl}
+\end{figure}
+
 <<>>=
 bcell <- flowDensity(sngl, channels=c(9, 3),
                      position=c(FALSE, NA))
 @
 
-<<label=plotBcell, fig=F>>=
+<<label=plotBcell,include=F>>=
 plot(getflowFrame(sngl), bcell)
 @
 
 \begin{figure}[h]
 \begin{center}
-<<fig=T, echo=F, width=6>>=
+<<label=fig2,fig=TRUE, echo=FALSE, width=6>>=
 <<plotBcell>>
 @
 \end{center}
 \caption{B cells from gating strategy lymphocytes/singlets/CD3-}
 \label{fig:bcell}
 \end{figure}
+
 \subsection{Gating rare cell populations}\label{subsec:rarePopulations}
 To emulate the practice of expert humans for identification of high, flowDensity provides
 two parameters that help fine tune the algorithm for identification of small cell populations. These
