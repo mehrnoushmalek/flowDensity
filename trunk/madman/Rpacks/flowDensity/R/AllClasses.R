@@ -4,8 +4,6 @@ setClass("CellPopulation", representation(flow.frame="flowFrame",
                                           channels="character", 
                                           position="logical",
                                           gates="numeric",
-					  filter="matrix",
-					  index="numeric"
+					                                filter="matrix",
+					                                index="numeric"))
 
-)
-)

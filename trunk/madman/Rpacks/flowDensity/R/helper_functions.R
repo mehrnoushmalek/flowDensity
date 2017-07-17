@@ -1,6 +1,7 @@
 .densityGating <- function(flow.frame, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                            bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
                            tinypeak.removal=tinypeak.removal, adjust.dens = 1,count.lim=20,magnitude = .3, ...){
+
   
   ##========================================================================================================================================
   ## 1D density gating method
