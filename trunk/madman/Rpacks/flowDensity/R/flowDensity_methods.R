@@ -168,9 +168,7 @@ nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=F
     names(inds)<-channels
     new.f <- flow.frame
     for(chan in channels){
-      j<-chan
-        if(is.character(chan))
-            j <- which(colnames(flow.frame)==chan)
+       j<- ifelse(is.character(chan),yes= which(colnames(flow.frame)==chan),no=chan)
         if(length(j)==0)
             next
         d <- exprs(new.f)[,j]
@@ -181,7 +179,7 @@ nmRemove <- function(flow.frame, channels, neg=FALSE, verbose=FALSE,return.ind=F
             i <- which(d != m)
         exprs(new.f)[i, ] <- exprs(new.f)[i,]
         if (verbose)
-          cat(length(which(!is.na(d)))-length(i), "Margin events removed from",colnames(new.f)[chan],"\n")
+          cat(length(which(!is.na(d)))-length(i), "Margin events removed from",colnames(new.f)[j],"\n")
         exprs(new.f)[-i,] <- NA
         inds[[chan]]<-which( is.na(exprs(new.f)[,1]))
     }
