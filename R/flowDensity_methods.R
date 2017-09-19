@@ -34,9 +34,10 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
           )
 
 
-deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
+deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                    bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
                    tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...){
+
     ##========================================================================================================================================
     ## 1D density gating method
     ## Args:
@@ -44,7 +45,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
     ##   channel: a channel's name or an integer to specify the channel
     ##   n.sd: an integer that is multiplied to the standard deviation to determine the place of threshold if 'sd.threshold' is 'TRUE'
     ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
-    ##   percentile: a value in [0,1] that is used as the percentile. the default is 0.95.
+    ##   percentile: a value in [0,1] that is used as the percentile. the default is NA. If set to a value(n) and use.percentile=F, it returns the n-th percentile, for 1-peak populations. 
     ##   use.upper: if TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T)
     ##   upper: if TRUE, finds the change in the slope at the tail of the density curve, if FALSE, finds it at the head.
     ##   verbose: When FALSE doesn't print any messages
@@ -63,7 +64,9 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
     ## Author:
     ##   M. Jafar Taghiyar & Mehrnoush Malek
     ##-----------------------------------------------------------------------------------------------------------------------------------------
-    if (class(obj)=="GatingHierarchy")
+
+  
+  if (class(obj)=="GatingHierarchy")
       obj<-getData(obj,node)
     if (class(obj)=="CellPopulation")
       obj<-.getDataNoNA(obj)
@@ -72,11 +75,24 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
                    tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude, ...)
 }
 
-getPeaks <-  function(frame, channel,tinypeak.removal=1/25,verbose=F,...){
+getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=1,...){
  ##===================================================
-  #Finding peaks for flowFrame objects
+  #Finding peaks for flowFrame objects or numeric vectors
  ##==================================================
-  x <- exprs(frame)[, channel]
+ if(class(obj)=="numeric"|class(obj)=="vector"){
+    x<-obj
+    channel <-NA
+  }else  if (class(obj)=="GatingHierarchy")
+      {
+      obj<-getData(obj,node)
+      x <- exprs(obj)[, channel]
+   }else if (class(obj)=="CellPopulation")
+     { 
+     obj<-.getDataNoNA(obj)
+     x <- exprs(obj)[, channel]
+     }else{
+   x <- exprs(obj)[, channel]
+  }
   n<- which(!is.na(x))
   if (length(n)< 3)
   {
@@ -84,12 +100,9 @@ getPeaks <-  function(frame, channel,tinypeak.removal=1/25,verbose=F,...){
       cat("Less than 3 cells, returning NA as a Peak.","\n")
     return(NA)
   }
-  dens <- .densityForPlot(data = x, adjust.dens=1,...)
-  stdev <- sd(x,na.rm = T)
-  med <- median(dens$x,na.rm = T)
+  dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
   if(is.numeric(channel))
-    channel <- colnames(frame)[channel]
-  cutoffs <- c()
+    channel <- colnames(obj)[channel]
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
   return(all.peaks)
 }
@@ -125,7 +138,11 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
       f.exprs<-f.exprs[-na.ind,]
     f.data <- pData(parameters(flow.frame))
     f.col.names <- colnames(flow.frame)
-
+    if (length(f.exprs[,channels[1]])<20)
+        {
+         col<-1
+         pch<-20
+        }
     if(missing(col)){
         colPalette <- colorRampPalette(c("blue", "turquoise", "green", "yellow", "orange", "red"))
         col <- densCols(f.exprs[,channels], colramp = colPalette)

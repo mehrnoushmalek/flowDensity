@@ -1,8 +1,10 @@
-.densityGating <- function(flow.frame, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
+.densityGating <- function(flow.frame, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                            bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
-                           tinypeak.removal=tinypeak.removal, adjust.dens = 1,count.lim=20,magnitude = .3, ...){
+                           tinypeak.removal=tinypeak.removal, adjust.dens = 1,count.lim=20,magnitude = .3,slope.w=4, ...){
 
   
+
+
   ##========================================================================================================================================
   ## 1D density gating method
   ## Args:
@@ -27,7 +29,12 @@
   ## Authors:
   ##   M. Jafar Taghiyar & Mehrnoush Malek
   ##-----------------------------------------------------------------------------------------------------------------------------------------
-  x <- exprs(flow.frame)[, channel]
+  if(class(flow.frame)=="numeric"|class(flow.frame)=="vector"){
+    x<-flow.frame
+    channel <-NA
+  }else{
+   x <- exprs(flow.frame)[, channel]
+  }
   n<- which(!is.na(x))
   if (length(n)< count.lim)
   { 
@@ -58,7 +65,7 @@
    return(quantile(x, probs = percentile, na.rm=T))
   if(use.upper){
     peak.ind <- ifelse(upper, peak.ind[len], peak.ind[1])
-    track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha,magnitude = magnitude)
+    track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha,magnitude = magnitude,w=slope.w)
     if(is.infinite(track.slope.cutoff))
       return(ifelse(upper, max(dens$x), min(dens$x)))
     else
@@ -72,7 +79,7 @@
       cutoffs <- quantile(x, probs = percentile, na.rm=T)
     } else if (!is.na(upper))
     {
-      track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha, magnitude = magnitude)
+      track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha, magnitude = magnitude,w=slope.w)
       if(is.infinite(track.slope.cutoff))
         cutoffs <- ifelse(upper, max(dens$x), min(dens$x))
       else
@@ -81,8 +88,7 @@
     {
       upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
       cutoffs <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
-    }
-    else{
+    }else{
       flex.point <- .getFlex(dens, peak.ind=peak.ind)
       if(!is.na(flex.point))
       { 
@@ -92,7 +98,7 @@
       }else{
         if(is.na(upper))
           upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
-        track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha, magnitude = magnitude)
+        track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha, magnitude = magnitude,w=slope.w)
         stdev.cutoff <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
         cutoffs <- ifelse(is.infinite(track.slope.cutoff)|sd.threshold, stdev.cutoff, track.slope.cutoff) # use the 's.threshold' if the gate from 'trackSlope()' is too loose
         if(verbose)
@@ -133,15 +139,18 @@
   ## Author:
   ##   M. Jafar Taghiyar
   ##--------------------------------------------------------------------------------------------------------------------------
- 
+  g.h <-NULL 
   if (class(f)=="GatingHierarchy")
   {
     if(!is.na(node))
     {
+
+      g.h <- f
       f <-flowWorkspace::getData(f,node)
     }else
       {
         warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
+        g.h <- f
         f <-flowWorkspace::getData(f)
       }
   }
@@ -188,8 +197,16 @@
     exprs(cell.population@flow.frame)[-inds, ] <- NA
     cell.population@cell.count <- length(inds)
     cell.population@position <-position
-    cell.population@proportion <- length(inds)/length(exprs(f)[,channels[1]]) * 100
-    cell.population@filter <- filter
+    cell.population@proportion <- length(inds)/length(i)*100
+if (class(g.h)=="GatingHierarchy")
+{
+   print("Returning polygonGate...")
+  poly <- polygonGate(.gate  =filter)
+ 
+    cell.population@filter <- poly
+}else{
+         cell.population@filter <- filter
+}
     cell.population@index<- inds
     g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
     g2<-ifelse(is.na(position[2]),yes = NA,no=ifelse(test = position[2],yes =min(filter[,2]),no = max(filter[,2]) ))
@@ -279,8 +296,23 @@
   
   if(is.numeric(channels))
     channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
-
+ if (class(g.h)=="GatingHierarchy")
+{
+   print("Returning polygonGate...")
+  poly <- polygonGate(.gate  =filter)
   cell.population <- new("CellPopulation",
+                         flow.frame=new.f,
+                         proportion=proportion,
+                         cell.count=cell.count,
+                         channels=channels,
+                         position=position,
+                         gates=gates,
+                         filter=poly ,
+                         index=cell.index
+  )
+    ######Add gs and recompute here
+}else{
+ cell.population <- new("CellPopulation",
                          flow.frame=new.f,
                          proportion=proportion,
                          cell.count=cell.count,
@@ -290,7 +322,9 @@
                          filter=filter,
                          index=cell.index
   )
+}
   return(cell.population)
+
 }
 
 .deGatePlot <- function(f, cell.population, adjust.dens = 1,node=NA,...){
@@ -414,9 +448,11 @@
     if(d.y[i+w] > d.y[(i+w+1):(i+2*w)] && d.y[i+w] > d.y[i:(i+w-1)] && d.y[i+w] > peak.removal*max(d.y)){ # also removes tiny artificial peaks less than ~%4 of the max peak
       peaks <- c(peaks, d$x[i+w])
       peaks.ind <- c(peaks.ind, i+w)
+      
     }
   }
-  return(list(Peaks=peaks, P.ind=peaks.ind))
+  peaks.height <- d.y[peaks.ind]
+  return(list(Peaks=peaks, P.ind=peaks.ind,P.h=peaks.height))
 }
 
 .getIntersect <- function(dens, p1, p2){
@@ -489,7 +525,7 @@ return.bimodal<-function(x,cutoffs)
   h.c <- fun(cutoffs);
   h.p <- fun(peaks$Peaks);
   d<- .getDist(peaks$Peaks)
-  max.peak<-peaks$Peaks[which.max(dens$y[peaks$P.ind])]
+  max.peak<-max(peaks$P.h)
   for(i in 1:(length(peaks$Peaks)-1)){
     valley <- cutoffs[i]
     if ((dens$y[which.min(abs(dens$x-valley))]>twin.factor*dens$y[peaks$P.ind[i]])& (dens$y[which.min(abs(dens$x-valley))]>twin.factor*dens$y[peaks$P.ind[i+1]]))
@@ -535,7 +571,7 @@ return.bimodal<-function(x,cutoffs)
   
 }
 
-.trackSlope <- function(dens, peak.ind, alpha, upper=T, w=10, return.slope=F,start.lo=1,rev=F,magnitude=.3){
+.trackSlope <- function(dens, peak.ind, alpha, upper=T, w=slope.w, return.slope=F,start.lo=1,rev=F,magnitude=.3){
   
   ##==========================================================================================================================
   ## Returns the point of the large change in the slope of the density, i.e., 'dens', where the threshold is likely to be there
@@ -555,8 +591,8 @@ return.bimodal<-function(x,cutoffs)
   d.x <- dens$x
   slope <- c()
   heights<- c()
-  start.p <- ifelse(rev,yes = peak.ind-w,no = start.lo)
-  end.p <- ifelse(rev,yes = start.lo,no = peak.ind-w)
+  start.p <- ifelse(rev,yes = peak.ind-w,no = start.lo+w)
+  end.p <- ifelse(rev,yes = start.lo+w,no = peak.ind-w)
   lo <- ifelse(upper, yes = peak.ind+w, no = start.p)
   up <- ifelse(upper, yes = length(d.y)-w, no = end.p)
   w <-ifelse(rev,yes = -w,no = w) 
@@ -572,7 +608,7 @@ return.bimodal<-function(x,cutoffs)
     return(NA)
   }
   for(i in seq(from=lo,to=up,by=w)){
-    slope <- c(slope, abs((d.y[i+w]-d.y[i])/(d.x[i+w]-d.x[i])))
+    slope <- c(slope, abs((d.y[i+w]-d.y[i-w])/(d.x[i+w]-d.x[i-w])))
     heights <-c(heights,d.y[i])
   }
   ## try to estimate the optimum alpha using the distribution of slopes
@@ -585,12 +621,12 @@ return.bimodal<-function(x,cutoffs)
   len <- length(small.slopes)
   if(len==0)
     return(ifelse(upper, Inf, -Inf))
-  ind <- ifelse(upper, small.slopes[1], small.slopes[len]) #if upper, the first large change of slope is given else the last change of slope is returned
+  ind <- ifelse(upper, yes=small.slopes[1], no=small.slopes[len]) #if upper, the first large change of slope is given else the last change of slope is returned
   
   return(ifelse(upper,yes= d.x[peak.ind+w*(ind)], no=d.x[(lo+(ind-1)*w)]))
 }
 
-.getFlex <- function(dens, peak.ind, w=3){
+.getFlex <- function(dens, peak.ind, w=2){
   
   ##==========================================================================================================================
   ## Returns the point of inflection or flex
@@ -680,13 +716,16 @@ return.bimodal<-function(x,cutoffs)
     ind <- which(is.na(f.exprs[,channels[1]]))
     if(length(ind) != 0)
       f.exprs <- f.exprs[-ind, ]
-    in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
-    tmp <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
-    if(length(ind) != 0)
-      tmp[-ind] <- in.p
-    else
-      tmp <- in.p
-    f.sub.ind <- which(tmp == 1)
+    #in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
+     in.p <- point.in.polygon(point.x=f.exprs[,channels[1]], point.y=f.exprs[,channels[2]],pol.x=filter[,1],pol.y=filter[,2])
+      tmp.in.p <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
+    if(length(ind) != 0){
+      tmp.in.p[ind] <- NA
+      tmp.in.p[-ind] <- in.p
+    }else{
+      tmp.in.p <- in.p
+    }
+     f.sub.ind <- which(tmp.in.p!=0)
     return(f.sub.ind)
   }
   else if(is.na(position[1])&is.na(position[2]))
@@ -721,7 +760,13 @@ return.bimodal<-function(x,cutoffs)
       f.sub.ind <- which(f.exprs[,channels[1]] < gates[1] & f.exprs[,channels[2]] < gates[2])
     
     if(include.equal)
-      f.sub.ind <-c(f.sub.ind,which(f.exprs[,channels[2]]==gates[2]),which(f.exprs[,channels[1]]==gates[1]))
+     {
+       if(!.is.na(gate[2]))
+         f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[2]]==gates[2]))
+        if(!.is.na(gate[1]))
+         f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[1]]==gates[1]))
+
+    }
   }
   return(f.sub.ind)
 }
@@ -821,9 +866,8 @@ return.bimodal<-function(x,cutoffs)
   ##  Value:
   ##     events inside the ellipse/rectangle gate
   ## Author:
-  ## M. Jafar Taghiyar
+  ## M. Malek, J. Taghiyar
   ##-------------------------------------------------------------------------------------------------------------------------------------
-  f.exprs <- exprs(fcs)
   if(missing(gates))
     gates <- flowDensity(fcs, channels, position, ...)@gates
   if(ellip.gate){
@@ -843,22 +887,22 @@ return.bimodal<-function(x,cutoffs)
     )
     
     ## Extract the coordinates of the elliptic gate
-    p <- list()
-    tmp <- names(eg)[2]
-    p$x <- eg[[2]][,1]
-    p$y <- eg[[2]][,2]
+   # p <- list()
+    #tmp <- names(eg)[2]
+    #p$x <- eg[[2]][,1]
+    #p$y <- eg[[2]][,2]
     
     ## Gate based on the ellipse not the rectangle produced by 'gates'
-    in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
-    
+    #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
+     in.p <- point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
     tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
-    tmp.in.p[ind] <- NA
     if(length(ind) != 0){
+      tmp.in.p[ind] <- NA
       tmp.in.p[-ind] <- in.p
     }else{
       tmp.in.p <- in.p
     }
-    exprs(fcs)[which(tmp.in.p!=1), ] <- NA
+    exprs(fcs)[which(tmp.in.p==0), ] <- NA
   }else{
     f.sub.ind <- .subFrame(fcs, channels, position, gates)
     if(length(f.sub.ind)==0)
@@ -869,30 +913,4 @@ return.bimodal<-function(x,cutoffs)
   return(fcs)
 }
 
-.luline <- function(data.points, point, m, up = TRUE, tp=NULL){
-  ##================================================================================================================
-  ## Returns the indexes of the points above and below a given line with slope m and the given 'point' coordination
-  ## Args:
-  ##   data.points: a matrix of point with 2 columns specifying the x and y coordinates
-  ##   point: a point on the line with c(x,y) coordination
-  ##   m: slope of the line
-  ##   up: if TRUE the points above the line are returned, else below
-  ##   tp: a test point with c(x,y) coordination to be evaluated if it is above or below the line
-  ## Value:
-  ##   the indexes of the points below and above the line
-  ##-----------------------------------------------------------------------------------------------------------------
-  yCalc <- function(x, m, d) m*x+d
-  d <- point[2]-m*point[1]
-  if(missing(data.points)){
-    dp <- yCalc(tp[1],m,d)
-    return(as.logical(ifelse(up, tp[2]-dp>0, tp[2]-dp<0)))
-  }else{
-    dp <- sapply(data.points[,1], FUN=function(x) yCalc(x=x,m=m,d=d))
-    if(up)
-      res <- which(data.points[,2]-dp>0)
-    else
-      res <- which(data.points[,2]-dp<0)
-    return(res)
-  }
-}
 

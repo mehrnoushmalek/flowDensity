@@ -195,9 +195,9 @@ if (is.matrix(filter))
     X <- exprs(new.f)[index, channels]
     filter <- chull(X)
     filter <- X[c(filter, filter[1]), ]
+  }else {
+    filter <- as.matrix(NA)
   }
-  else filter <- as.matrix(NA)
-  
   colnames(filter) <- channels
   polygonGate(.gate = filter)
   
