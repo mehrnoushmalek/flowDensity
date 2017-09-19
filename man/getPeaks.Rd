@@ -8,18 +8,25 @@
     Find all peaks in density along with their indices
 }
 \usage{
-getPeaks(frame, channel,tinypeak.removal=1/25,...)
+getPeaks(obj, channel,tinypeak.removal=1/25,...)
+\S4method{getPeaks}{CellPopulation}(obj, channel,tinypeak.removal, ...)
+\S4method{getPeaks}{GatingHierarchy}(obj, channel, tinypeak.removal, ...)
+\method{getPeaks}{numeric}(obj,tinypeak.removal, ...)
 }
 \arguments{
-  \item{frame}{
-  	a 'FlowFrame' object.
+  \item{obj}{
+  	a 'FlowFrame', 'GatingHierarchy' or 'CellPopulation' object.
   }
   \item{channel}{
-    a channel's name or its corresponding index in the 'flow.frame'.
+    a channel's name or its corresponding index. If the input is numeric vector, channel is NA.
   }
   
   \item{tinypeak.removal}{
-    A number in [0,1] to exclude/include tiny peaks in density distribution.
+    A number in [0,1] to exclude/include tiny peaks in density distribution. Default is 1/25.
+  }
+ \item{adjust.dens}{
+    The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
+
   }
 
  \item{...}{
@@ -29,7 +36,7 @@ getPeaks(frame, channel,tinypeak.removal=1/25,...)
  
 }
 \value{
-  a list, including peaks and their corresponding indices
+  a list, including peaks, their corresponding indices and height.
 }
 \examples{
 

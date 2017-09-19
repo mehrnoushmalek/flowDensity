@@ -11,6 +11,9 @@
 \usage{
 deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98, bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE,
 all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...)
+
+\method{deGate}{numeric}(obj, ...)
+
 }
 \arguments{
   \item{obj}{
@@ -27,7 +30,7 @@ all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,ma
     if TRUE, forces to return the 'percentile'th threshold.
   }
   \item{percentile}{
-    a value in [0,1] that is used as the percentile. The default value is 0.95.
+     A value in [0,1] that is used as the percentile. The default is NA. If set to a value(n) and use.percentile=F, it returns the n-th percentile, for 1-peak populations. 
   }
     \item{use.upper}{
     Logical. If TRUE, forces to return the inflection point based on the first (last) peak if upper=F (upper=T). Default value is set to 'FALSE'
@@ -90,8 +93,14 @@ all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,ma
   }
 
 }
+
 \value{
   an integer value (vector) of cutoff(s), i.e. threshold(s), on the specified channel
+}
+
+\details{
+
+deGate works for GatingHierarchy, flowFrame, CellPopulation object or a numeric vector of data. In case the input is a numeric vector, channel doesn't need to provided, but the rest of arguments can be used to tune the outcome.
 }
 \examples{
 
