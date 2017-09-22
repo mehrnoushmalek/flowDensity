@@ -542,7 +542,7 @@ return.bimodal<-function(x,cutoffs)
         return(quantile(dat, percentile, na.rm=T))
       } else if (!is.na(upper))
       {
-        return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude))
+        return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude, w=slope.w))
       }
       
     }else if(length(mins)>1)
