@@ -36,7 +36,7 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
 
 deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                    bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
-                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...){
+                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4, ...){
 
     ##========================================================================================================================================
     ## 1D density gating method
@@ -59,6 +59,8 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
     ##   node: A character of the parent name to be excluded from gating hierarchy. Default is NA when x is flowFrame or CellPopulation object. Check getNodesof flowWorkspace
     ##   adjust.dens: The smoothness of density, it is same as adjust in density(.). The default value is 1 and should not be changed unless necessary
     ##   count.lim: minimum limit for event count in order to calculate the threshold. Default is 20
+    ##   magnitude: Value between (0,1) for finding changes in the slope that are smaller than max(peak)*magnitude
+    ##   slope.w: Value used for tracking slope. It's a value from 1 to length(density$y), that skip looking at all data points, and instead look at point(i) and point(i+w)
     ## Value:
     ##   cutoffs, i.e. thresholds on the 1D data
     ## Author:
@@ -72,7 +74,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
       obj<-.getDataNoNA(obj)
     .densityGating(flow.frame = obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
                    twin.factor=twin.factor,bimodal=bimodal,after.peak=after.peak,alpha = alpha, sd.threshold = sd.threshold,all.cuts = all.cuts,
-                   tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude, ...)
+                   tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w, ...)
 }
 
 getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=1,...){

@@ -111,7 +111,7 @@
    if(all.cuts)
      return(cutoffs)
 
-     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,
+     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,slope.w=slope.w,
                                upper=upper,alpha=alpha,twin.factor=twin.factor,bimodal=bimodal,after=after.peak,magnitude=magnitude, ...)
    }
    return(cutoffs)
@@ -504,7 +504,7 @@ return.bimodal<-function(x,cutoffs)
   return(cutoffs[which.min(scores)])
 }
 
-.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after, ...){
+.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after,slope.w, ...){
   ##==========================================================================================
   ## Returns the cutoff based upon which the .densityGating() function decides on the thresholds
   ## Args:
@@ -761,9 +761,9 @@ return.bimodal<-function(x,cutoffs)
     
     if(include.equal)
      {
-       if(!.is.na(gate[2]))
+       if(!is.na(gates[2]))
          f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[2]]==gates[2]))
-        if(!.is.na(gate[1]))
+        if(!is.na(gates[1]))
          f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[1]]==gates[1]))
 
     }
@@ -894,7 +894,7 @@ return.bimodal<-function(x,cutoffs)
     
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
-     in.p <- point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
+     in.p <- sp::point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
     tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
     if(length(ind) != 0){
       tmp.in.p[ind] <- NA
