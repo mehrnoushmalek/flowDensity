@@ -3,3 +3,13 @@ It automates the current practice of manual 2D gating and adjusts the gates for 
 
 There's an update on getflowFrame(.) when there's less than 2 cells. This is an error with flowCore package. If there's only one cell, it will be duplicated, and if all cells are NA, a flowFrame of size 2 with all values eual to -10 will be returned.
 Also when there is less than 3 cell, flowDensity doesn't gate anything. it just returns NA for filter and 0 for gates.
+
+A better code has been written for calcullating cell counts.
+Function for tracking changes on the slope has been updated
+
+notSubFrame() has been updated
+If filter is provided to flowDensity, it uses that filter to gate the population and report cell counts and proportions.
+
+You can now use gating0hierarchy with flowDensity, assuming the Node is given to distract the population.
+
+
