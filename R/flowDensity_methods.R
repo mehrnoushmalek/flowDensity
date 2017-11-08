@@ -69,6 +69,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
 
   
   if (class(obj)=="GatingHierarchy")
+
       obj<-getData(obj,node)
     if (class(obj)=="CellPopulation")
       obj<-.getDataNoNA(obj)
@@ -105,6 +106,8 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=
   dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
   if(is.numeric(channel))
     channel <- colnames(obj)[channel]
+  dens <- .densityForPlot(data = x, adjust.dens=1,...)
+
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
   return(all.peaks)
 }
@@ -145,6 +148,7 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
          col<-1
          pch<-20
         }
+
     if(missing(col)){
         colPalette <- colorRampPalette(c("blue", "turquoise", "green", "yellow", "orange", "red"))
         col <- densCols(f.exprs[,channels], colramp = colPalette)

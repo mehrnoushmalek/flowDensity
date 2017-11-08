@@ -1,2 +1,2 @@
-1.7.1: use.upper argument has been added to deGate() function for better handling of inflection point when there's more than 2 peaks.
-1.11.5: Another functions is used to counts points within a gate, and therefore there's no need for using GEOmap library.
+1.13.1: Another functions is used to counts points within a gate, and therefore there's no need for using GEOmap library.
+

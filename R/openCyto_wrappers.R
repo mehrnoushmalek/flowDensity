@@ -37,6 +37,7 @@
 #' @return a \code{rectangleGate}
 .flowDensity.1d <- function(fr, channel, filterId = "", positive, ...){
   cutpoint <- flowDensity::deGate(fr, channel = channel, ...)
+
   #construct 1d filter 
   if (positive) {
     gate_coordinates <- list(c(cutpoint, Inf))
@@ -57,6 +58,7 @@
 #' and convert the matrix to a polygon filter
 #' 
 #' @return a \code{polygonGate}
+
 .flowDensity.2d <- function (f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
    upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
    after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
@@ -107,8 +109,9 @@
     exprs(cell.population@flow.frame)[-inds, ] <- NA
     cell.population@cell.count <- length(inds)
     cell.population@position <-position
+
     cell.population@proportion <- length(inds)/length(i)*100
-      cell.population@filter <- filter
+    cell.population@filter <- filter
     cell.population@index<- inds
     g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
     g2<-ifelse(is.na(position[2]),yes = NA,no=ifelse(test = position[2],yes =min(filter[,2]),no = max(filter[,2]) ))
@@ -140,6 +143,7 @@
       gates[1] <- flowDensity:::.densityGating(flow.frame=f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
                                  sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
+
     else gates[1] <- 0
   }
   if (is.na(gates[2])) {
@@ -173,14 +177,15 @@
   cell.index <- which(!is.na(exprs(new.f)[,channels[1]]))
   cell.count <- length(cell.index)
   proportion <- cell.count/length(i) * 100
-
   if (cell.count != 0) {
     X <- exprs(new.f)[index, channels]
     filter <- chull(X)
     filter <- X[c(filter, filter[1]), ]
+
   }else {
     filter <- as.matrix(NA)
   }
+
   colnames(filter) <- channels
   polygonGate(.gate = filter)
   

@@ -30,6 +30,7 @@ all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,ma
     if TRUE, forces to return the 'percentile'th threshold.
   }
   \item{percentile}{
+
      A value in [0,1] that is used as the percentile. The default is NA. If set to a value(n) and use.percentile=F, it returns the n-th percentile, for 1-peak populations. 
   }
     \item{use.upper}{
@@ -102,6 +103,7 @@ all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,ma
 
 deGate works for GatingHierarchy, flowFrame, CellPopulation object or a numeric vector of data. In case the input is a numeric vector, channel doesn't need to provided, but the rest of arguments can be used to tune the outcome.
 }
+
 \examples{
 
 data_dir <- system.file("extdata", package = "flowDensity")

@@ -26,7 +26,6 @@ getPeaks(obj, channel,tinypeak.removal=1/25,...)
   }
  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
-
   }
 
  \item{...}{

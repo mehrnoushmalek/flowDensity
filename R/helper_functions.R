@@ -2,9 +2,6 @@
                            bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
                            tinypeak.removal=tinypeak.removal, adjust.dens = 1,count.lim=20,magnitude = .3,slope.w=4, ...){
 
-  
-
-
   ##========================================================================================================================================
   ## 1D density gating method
   ## Args:
@@ -99,6 +96,7 @@
         if(is.na(upper))
           upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
         track.slope.cutoff <- .trackSlope(dens, peak.ind=peak.ind, upper=upper, alpha=alpha, magnitude = magnitude,w=slope.w)
+
         stdev.cutoff <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
         cutoffs <- ifelse(is.infinite(track.slope.cutoff)|sd.threshold, stdev.cutoff, track.slope.cutoff) # use the 's.threshold' if the gate from 'trackSlope()' is too loose
         if(verbose)
@@ -140,17 +138,18 @@
   ##   M. Jafar Taghiyar
   ##--------------------------------------------------------------------------------------------------------------------------
   g.h <-NULL 
+
   if (class(f)=="GatingHierarchy")
   {
     if(!is.na(node))
     {
 
-      g.h <- f
       f <-flowWorkspace::getData(f,node)
     }else
       {
         warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
         g.h <- f
+
         f <-flowWorkspace::getData(f)
       }
   }
@@ -207,6 +206,7 @@ if (class(g.h)=="GatingHierarchy")
 }else{
          cell.population@filter <- filter
 }
+
     cell.population@index<- inds
     g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
     g2<-ifelse(is.na(position[2]),yes = NA,no=ifelse(test = position[2],yes =min(filter[,2]),no = max(filter[,2]) ))
@@ -300,6 +300,7 @@ if (class(g.h)=="GatingHierarchy")
 {
    print("Returning polygonGate...")
   poly <- polygonGate(.gate  =filter)
+
   cell.population <- new("CellPopulation",
                          flow.frame=new.f,
                          proportion=proportion,
@@ -320,8 +321,7 @@ if (class(g.h)=="GatingHierarchy")
                          position=position,
                          gates=gates,
                          filter=filter,
-                         index=cell.index
-  )
+                         index=cell.index )
 }
   return(cell.population)
 
@@ -543,6 +543,7 @@ return.bimodal<-function(x,cutoffs)
       } else if (!is.na(upper))
       {
         return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude, w=slope.w))
+
       }
       
     }else if(length(mins)>1)
@@ -593,6 +594,7 @@ return.bimodal<-function(x,cutoffs)
   heights<- c()
   start.p <- ifelse(rev,yes = peak.ind-w,no = start.lo+w)
   end.p <- ifelse(rev,yes = start.lo+w,no = peak.ind-w)
+
   lo <- ifelse(upper, yes = peak.ind+w, no = start.p)
   up <- ifelse(upper, yes = length(d.y)-w, no = end.p)
   w <-ifelse(rev,yes = -w,no = w) 
@@ -608,6 +610,7 @@ return.bimodal<-function(x,cutoffs)
     return(NA)
   }
   for(i in seq(from=lo,to=up,by=w)){
+
     slope <- c(slope, abs((d.y[i+w]-d.y[i-w])/(d.x[i+w]-d.x[i-w])))
     heights <-c(heights,d.y[i])
   }
@@ -627,6 +630,7 @@ return.bimodal<-function(x,cutoffs)
 }
 
 .getFlex <- function(dens, peak.ind, w=2){
+
   
   ##==========================================================================================================================
   ## Returns the point of inflection or flex
@@ -913,4 +917,30 @@ return.bimodal<-function(x,cutoffs)
   return(fcs)
 }
 
+.luline <- function(data.points, point, m, up = TRUE, tp=NULL){
+  ##================================================================================================================
+  ## Returns the indexes of the points above and below a given line with slope m and the given 'point' coordination
+  ## Args:
+  ##   data.points: a matrix of point with 2 columns specifying the x and y coordinates
+  ##   point: a point on the line with c(x,y) coordination
+  ##   m: slope of the line
+  ##   up: if TRUE the points above the line are returned, else below
+  ##   tp: a test point with c(x,y) coordination to be evaluated if it is above or below the line
+  ## Value:
+  ##   the indexes of the points below and above the line
+  ##-----------------------------------------------------------------------------------------------------------------
+  yCalc <- function(x, m, d) m*x+d
+  d <- point[2]-m*point[1]
+  if(missing(data.points)){
+    dp <- yCalc(tp[1],m,d)
+    return(as.logical(ifelse(up, tp[2]-dp>0, tp[2]-dp<0)))
+  }else{
+    dp <- sapply(data.points[,1], FUN=function(x) yCalc(x=x,m=m,d=d))
+    if(up)
+      res <- which(data.points[,2]-dp>0)
+    else
+      res <- which(data.points[,2]-dp<0)
+    return(res)
+  }
+}
 
