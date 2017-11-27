@@ -96,17 +96,19 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=
      }else{
    x <- exprs(obj)[, channel]
   }
-  n<- which(!is.na(x))
-  if (length(n)< 3)
-  {
-    if(verbose)
-      cat("Less than 3 cells, returning NA as a Peak.","\n")
-    return(NA)
+ if ( class(obj)=="density")
+  { 
+    dens <- obj 
+  }else{
+   n<- which(!is.na(x))
+    if (length(n)< 3)
+     {
+     if(verbose)
+       cat("Less than 3 cells, returning NA as a Peak.","\n")
+     return(NA)
   }
   dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
-  if(is.numeric(channel))
-    channel <- colnames(obj)[channel]
-  dens <- .densityForPlot(data = x, adjust.dens=1,...)
+}
 
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
   return(all.peaks)
