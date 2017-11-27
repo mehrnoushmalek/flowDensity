@@ -452,6 +452,13 @@ if (class(g.h)=="GatingHierarchy")
     }
   }
   peaks.height <- d.y[peaks.ind]
+if (is.na(peaks))
+{
+warning("No peaks could be found, returning the maximum value of density.")
+  peaks <-d$x[which.max(d$y)]
+  peaks.height<-d$y[which.max(d$y)]
+  peaks.ind <-which.max(d$y)
+}
   return(list(Peaks=peaks, P.ind=peaks.ind,P.h=peaks.height))
 }
 
@@ -536,7 +543,7 @@ return.bimodal<-function(x,cutoffs)
       mins<-c(mins,valley)
     }
   }
-    if (all(is.na(mins)))
+    if (suppressWarnings(all(is.na(mins))))
     {
       if(!is.na(percentile)){
         return(quantile(dat, percentile, na.rm=T))
@@ -659,8 +666,11 @@ return.bimodal<-function(x,cutoffs)
     }else
       lower.ind <- Inf
   }
-  if(is.infinite(upper.ind)&is.infinite(lower.ind))
-    return(NA)
+    if(is.infinite(upper.ind)&is.infinite(lower.ind))
+{    
+    warning("Inflection points cannot be calculated, returning the first peak + sd.")
+    return(dens$x[which.max(dens$y,na.rm =T)]+sd(dens$x,na.rm=T))
+}
   if(upper.ind<lower.ind)
     return(dens$x[peak.ind+upper.ind])
   else
