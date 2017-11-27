@@ -12,10 +12,11 @@ getPeaks(obj, channel,tinypeak.removal=1/25,...)
 \S4method{getPeaks}{CellPopulation}(obj, channel,tinypeak.removal, ...)
 \S4method{getPeaks}{GatingHierarchy}(obj, channel, tinypeak.removal, ...)
 \method{getPeaks}{numeric}(obj,tinypeak.removal, ...)
+\method{getPeaks}{density}(obj,tinypeak.removal, ...)
 }
 \arguments{
   \item{obj}{
-  	a 'FlowFrame', 'GatingHierarchy' or 'CellPopulation' object.
+  	a 'FlowFrame', 'GatingHierarchy', 'CellPopulation' a density object or a numeric vector of  density.
   }
   \item{channel}{
     a channel's name or its corresponding index. If the input is numeric vector, channel is NA.
