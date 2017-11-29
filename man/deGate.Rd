@@ -9,11 +9,9 @@
     data based on its density distribution.
 }
 \usage{
-deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile = 0.95,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98, bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE,
-all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3, ...)
-
-\method{deGate}{numeric}(obj, ...)
-
+deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
+                   bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
+                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4, ...)
 }
 \arguments{
   \item{obj}{
@@ -89,6 +87,9 @@ all.cuts = FALSE, tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,ma
    A value between 0 and 1, for tracking a slope and reporting changes that are smaller than magnitude*peak_height
   }
 
+\item{slope.w}{
+ window.width for tracking slope. Default is 4, calculating a slope based on 4 points before and after the current point.
+}
 \item{...}{
    Extra arguments to be passed to smoothSpline function.
   }

@@ -1,9 +1,9 @@
 \name{flowDensity}
 \docType{methods}
 \alias{flowDensity}
-\alias{.flowDensity}
-\title{
-  Automated Sequential Gating Tool for Flow Cytometry
+\title{ Methods for Function \code{flowDensity} in Package \pkg{flowDensity} }
+\usage{
+	flowDensity(obj, channels, position,node, ...)
 }
 \description{
   flowDensity is an automated clustering algorithm which aims to emulate the current practice of manual sequential gating.
@@ -17,9 +17,7 @@
   \item If either all these arguments are 'NA', or one of them fails, the algorithm find the best cutoff based on the inflection points and by comparing the position of the peak and the mean of the population.
 }
 }
-\usage{
-	flowDensity(obj, channels, position,node, ...)
-}
+
 \arguments{
   \item{obj}{
   	a 'CellPopulation', 'flowFrame' or 'GatingHierarchy' object.

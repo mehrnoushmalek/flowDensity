@@ -8,11 +8,7 @@
     Find all peaks in density along with their indices
 }
 \usage{
-getPeaks(obj, channel,tinypeak.removal=1/25,...)
-\S4method{getPeaks}{CellPopulation}(obj, channel,tinypeak.removal, ...)
-\S4method{getPeaks}{GatingHierarchy}(obj, channel, tinypeak.removal, ...)
-\method{getPeaks}{numeric}(obj,tinypeak.removal, ...)
-\method{getPeaks}{density}(obj,tinypeak.removal, ...)
+getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,...)
 }
 \arguments{
   \item{obj}{
@@ -28,12 +24,17 @@ getPeaks(obj, channel,tinypeak.removal=1/25,...)
  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
+\item{node}{
+ Chareacter for the parent population if passing GatingHierarchy object.
+}
+
+\item{verbose}{
+ If TRUE, printing warnings.
+}
 
  \item{...}{
    Arguments passed to smoothSpline function, spar is 0.4.
   }
-  
- 
 }
 \value{
   a list, including peaks, their corresponding indices and height.
