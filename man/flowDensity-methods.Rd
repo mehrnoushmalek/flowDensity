@@ -1,9 +1,9 @@
 \name{flowDensity-methods}
 \docType{methods}
 \alias{flowDensity}
-\alias{flowDensity-methods}
-\alias{flowDensity,CellPopulation,ANY,logical,missing-method}
-\alias{flowDensity,flowFrame,ANY,logical,missing-method}
+\alias{flowDensity}
+\alias{flowDensity,CellPopulation,ANY,logical,missing}
+\alias{flowDensity,flowFrame,ANY,logical,missing}
 \alias{flowDensity,GatingHierarchy,ANY,logical,ANY}
 \title{ Methods for Function \code{flowDensity} in Package \pkg{flowDensity} }
 \usage{
