@@ -78,7 +78,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
                    tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w, ...)
 }
 
-getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=1,...){
+getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,...){
  ##===================================================
   #Finding peaks for flowFrame objects or numeric vectors
  ##==================================================
@@ -93,8 +93,8 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=
      { 
      obj<-.getDataNoNA(obj)
      x <- exprs(obj)[, channel]
-     }else{
-   x <- exprs(obj)[, channel]
+     }else if (class(obj)=="flowFrame"){
+       x <- exprs(obj)[, channel]
   }
  if ( class(obj)=="density")
   { 
@@ -113,8 +113,6 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25,verbose=F, adjust.dens=
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
   return(all.peaks)
 }
-
-
 
 plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ...){
 
@@ -163,7 +161,7 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
         ylab <- paste("<", channels[2], ">:", f.data$desc[which(f.col.names==channels[2])], sep = "")
     if(missing(main))
         main <- "All Events"
-        plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
 }
 
 

@@ -86,7 +86,7 @@
       upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
       cutoffs <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
     }else{
-      flex.point <- .getFlex(dens, peak.ind=peak.ind)
+      flex.point <- .getFlex(dens, peak.ind=peak.ind,magnitude = magnitude)
       if(!is.na(flex.point))
       { 
         if(verbose)
@@ -109,7 +109,7 @@
    if(all.cuts)
      return(cutoffs)
 
-     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,slope.w=slope.w,
+     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,w=slope.w,
                                upper=upper,alpha=alpha,twin.factor=twin.factor,bimodal=bimodal,after=after.peak,magnitude=magnitude, ...)
    }
    return(cutoffs)
@@ -360,7 +360,7 @@ if (class(g.h)=="GatingHierarchy")
   ## Plot the pdf of channels[1]
   data.chan1 <- exprs(f)[,channels[1]]
   dens.chan1 <- .densityForPlot(data.chan1, adjust.dens, ...)
-  plot(dens.chan1, xlim=range(data.chan1), type="l", frame.plot=F, axes=F, ann=F)
+  graphics::plot(dens.chan1, xlim=range(data.chan1), type="l", frame.plot=F, axes=F, ann=F)
   
   ## Fill the pdf of channels[1]
   pts <- .densRange(dens.chan1$x, dens.chan1$y, gates[1], pos[1])
@@ -374,7 +374,7 @@ if (class(g.h)=="GatingHierarchy")
   ## Plot the pdf of channels[2]
   data.chan2 <- exprs(f)[,channels[2]]
   dens.chan2 <- .densityForPlot(data.chan2, adjust.dens, ...)
-  plot(dens.chan2$y, dens.chan2$x, ylim=range(data.chan2), xlim=rev(range(dens.chan2$y)),
+  graphics::plot(dens.chan2$y, dens.chan2$x, ylim=range(data.chan2), xlim=rev(range(dens.chan2$y)),
        type="l", col=1, frame.plot=F, axes=F, ann=F)
   
   ## Fill the pdf of channels[2]
@@ -430,7 +430,7 @@ if (class(g.h)=="GatingHierarchy")
     layout.show(l)
 }
 
-.getPeaks <- function(d,peak.removal){
+.getPeaks <- function(d,peak.removal=1/25){
   
   ##=====================================================================================================================
   ## Finds the peaks in the given density
@@ -440,6 +440,8 @@ if (class(g.h)=="GatingHierarchy")
   ## Value:
   ##   peaks in the density of the provided channel
   ##---------------------------------------------------------------------------------------------------------------------
+  if (all(is.na(d)))
+     return(NA)
   d.y <- d$y
   w <- 1
   peaks <- c()
@@ -452,7 +454,7 @@ if (class(g.h)=="GatingHierarchy")
     }
   }
   peaks.height <- d.y[peaks.ind]
-if (is.na(peaks))
+if (all(is.na(peaks)))
 {
 warning("No peaks could be found, returning the maximum value of density.")
   peaks <-d$x[which.max(d$y)]
@@ -511,7 +513,7 @@ return.bimodal<-function(x,cutoffs)
   return(cutoffs[which.min(scores)])
 }
 
-.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after,slope.w, ...){
+.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after,w=w, ...){
   ##==========================================================================================
   ## Returns the cutoff based upon which the .densityGating() function decides on the thresholds
   ## Args:
@@ -525,7 +527,7 @@ return.bimodal<-function(x,cutoffs)
   ## Value:
   ##   the selected cutoff based on defined arguments
   ##------------------------------------------------------------------------------------------
-  dens <- .densityForPlot(dat, adjust.dens, ...)
+  dens <- .densityForPlot(dat, adjust.dens=1, ...)
   mins <-c()
   h <- c()
   fun <- splinefun(dens)
@@ -549,7 +551,7 @@ return.bimodal<-function(x,cutoffs)
         return(quantile(dat, percentile, na.rm=T))
       } else if (!is.na(upper))
       {
-        return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude, w=slope.w))
+        return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude, w=w))
 
       }
       
@@ -579,7 +581,7 @@ return.bimodal<-function(x,cutoffs)
   
 }
 
-.trackSlope <- function(dens, peak.ind, alpha, upper=T, w=slope.w, return.slope=F,start.lo=1,rev=F,magnitude=.3){
+.trackSlope <- function(dens, peak.ind, alpha, upper=T, w, return.slope=F,start.lo=1,rev=F,magnitude=.3){
   
   ##==========================================================================================================================
   ## Returns the point of the large change in the slope of the density, i.e., 'dens', where the threshold is likely to be there
@@ -611,7 +613,7 @@ return.bimodal<-function(x,cutoffs)
     lo <- ifelse(upper, yes = peak.ind+w, no = start.p)
     up <- ifelse(upper, yes = length(d.y)-w, no = end.p)
   }
-  if (mode(tryCatch(seq(from=lo,to=up,by=w), error = function(x) return(C)))=="character")
+  if (mode(tryCatch(seq(from=lo,to=up,by=w), error = function(x) return("error")))=="character")
   {
     warning("not enough point to calculate upper, returning NA.")
     return(NA)
@@ -636,7 +638,7 @@ return.bimodal<-function(x,cutoffs)
   return(ifelse(upper,yes= d.x[peak.ind+w*(ind)], no=d.x[(lo+(ind-1)*w)]))
 }
 
-.getFlex <- function(dens, peak.ind, w=2){
+.getFlex <- function(dens, peak.ind, w=2,magnitude = magnitude){
 
   
   ##==========================================================================================================================
@@ -669,7 +671,7 @@ return.bimodal<-function(x,cutoffs)
     if(is.infinite(upper.ind)&is.infinite(lower.ind))
 {    
     warning("Inflection points cannot be calculated, returning the first peak + sd.")
-    return(dens$x[which.max(dens$y,na.rm =T)]+sd(dens$x,na.rm=T))
+    return(dens$x[which.max(dens$y)]+sd(dens$x,na.rm=T))
 }
   if(upper.ind<lower.ind)
     return(dens$x[peak.ind+upper.ind])
@@ -705,6 +707,11 @@ return.bimodal<-function(x,cutoffs)
 }
 
 .densityForPlot <- function(data, adjust.dens=1,spar=.4,...){
+  if (length(data)<2)
+  {
+      warning ("Less than 2 cells, returning NA as a Peak.")
+      return(NA)
+ }
   dens <- density(data[which(!is.na(data))], adjust=adjust.dens)
   dens <- smooth.spline(dens$x, dens$y, spar=0.4, ...)
   dens$y[which(dens$y<0)] <- 0
@@ -819,9 +826,9 @@ return.bimodal<-function(x,cutoffs)
     X <- exprs(cell@flow.frame)[index,channels]
     filter <- chull(X)
     filter <- X[c(filter,filter[1]),]
-    poly1 <- SpatialPolygons(list(Polygons(list(Polygon(filter)), ID=c("c"))))  
+    poly1 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(filter)), ID=c("c"))))  
 
-    poly2 <- SpatialPolygons(list(Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
+    poly2 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
 
     if(rgeos::gIntersects( poly1, poly2)){
        temp <-rgeos::gDifference(poly1,poly2)

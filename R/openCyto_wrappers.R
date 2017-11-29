@@ -79,7 +79,7 @@
           pattern = "SSC"))
   if (length(col.nm) == 0) 
     warning("No forward/side scatter channels found, margin events not removed.")
-  else f <- flowDensity:::nmRemove(f, col.nm)
+  else f <- flowDensity::nmRemove(f, col.nm)
   i <- which(!is.na(exprs(f)[, channels[1]]))
   if (length(i) == 0) 
     stop("invalid flowFrame input: all NA values")
@@ -95,7 +95,7 @@
     if(length(col.nm)==0)
       warning('No forward/side scatter channels found in control data for first channel, margin events not removed.')
     else
-      f <- flowDensity:::nmRemove(f, col.nm)
+      f <- flowDensity::nmRemove(f, col.nm)
   }
   if (is.na(gates[1]) & is.na(gates[2]) & is.na(position[1]) & 
       is.na(position[2])) 
@@ -134,13 +134,13 @@
           grep(colnames(f.control1), pattern = "SSC"))
       if (length(col.nm.control1) == 0) 
         warning("No forward/side scatter channels found in control data for first channel, margin events not removed.")
-      else f.control1 <- flowDensity:::nmRemove(f.control1, col.nm.control1)
-      gates[1] <- flowDensity:::.densityGating(flow.frame=f.control1, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
+      else f.control1 <- flowDensity::nmRemove(f.control1, col.nm.control1)
+      gates[1] <- flowDensity::deGate(f.control1, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
                                  sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
     }
     else if(!is.na(position[1]))
-      gates[1] <- flowDensity:::.densityGating(flow.frame=f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
+      gates[1] <- flowDensity::deGate(f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
                                  sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
 
@@ -161,13 +161,13 @@
           grep(colnames(f.control2), pattern = "SSC"))
       if (length(col.nm.control2) == 0) 
         warning("No forward/side scatter channels found in control data for second channel, margin events not removed.")
-      else f.control2 <- flowDensity:::nmRemove(f.control2, col.nm.control2)
-    gates[2] <- flowDensity:::.densityGating(flow.frame=f.control2, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
+      else f.control2 <- flowDensity::nmRemove(f.control2, col.nm.control2)
+    gates[2] <- flowDensity::deGate(f.control2, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
                                sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
   }
     else if(!is.na(position[2]))
-      gates[2] <- flowDensity:::.densityGating(flow.frame=f, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
+      gates[2] <- flowDensity::deGate(f, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                  verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
                                  sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
     else gates[2] <- 0
@@ -178,7 +178,7 @@
   cell.count <- length(cell.index)
   proportion <- cell.count/length(i) * 100
   if (cell.count != 0) {
-    X <- exprs(new.f)[index, channels]
+    X <- exprs(new.f)[cell.index, channels]
     filter <- chull(X)
     filter <- X[c(filter, filter[1]), ]
 
