@@ -1,5 +1,5 @@
 %\VignetteIndexEntry{Automated alternative to the current manual gating practice}
-%\VignetteDepends{flowCore, GEOmap}
+%\VignetteDepends{flowCore}
 %\VignetteKeywords{}
 %\VignettePackage{flowDensity}
 \documentclass{scrartcl}
@@ -85,7 +85,6 @@ equivalently lsinglets/Bcell. The Figures \ref{fig:sngl}-\ref{fig:bcell} show th
 <<>>=
 library(flowCore)
 library(flowDensity)
-library(GEOmap)
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 f

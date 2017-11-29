@@ -3,17 +3,17 @@
 ##Example1
 library(flowCore)
 library(flowDensity)
-library(GEOmap)
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 f
 sngl <- flowDensity(f,channels = c("FSC-A","FSC-H"),position = c(F,F),
                     percentile =c(.99999,.99999),use.percentile = c(T,T),
+                   ellip.gate = T,scale = .99 )
 
 plotDens(f,c(1,2))
 lines(sngl@filter,type="l")
+
 ###Example2
-<<>>=
 bcell <- flowDensity(sngl, channels=c(9, 3),
                      position=c(FALSE, NA))
 
