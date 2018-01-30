@@ -5,7 +5,7 @@
   ##========================================================================================================================================
   ## 1D density gating method
   ## Args:
-  ##   flow.frame: a 'FlowFrame' object
+  ##   obj: a 'FlowFrame' object, vector or a density object
   ##   channel: a channel's name or an integer to specify the channel
   ##   n.sd: an integer that is multiplied to the standard deviation to determine the place of threshold if 'sd.threshold' is 'TRUE'
   ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
@@ -27,18 +27,25 @@
   ##   M. Jafar Taghiyar & Mehrnoush Malek
   ##-----------------------------------------------------------------------------------------------------------------------------------------
   if(class(obj)=="numeric"|class(obj)=="vector"){
-    x<-flow.frame
+    x<-obj
+    n<- which(!is.na(x))
     channel <-NA
   dens <- .densityForPlot(data = x, adjust.dens,...)
+  stdev <- sd(x,na.rm = T)
   }else if(class(obj)=="density"){
+   warning("Percentiles and SD would be meaningless when dealing with density objects. Make sure to not use them with density objects.")
     dens <- obj
     channel <-NA
-    x<-dens$y
+    stdev <- sd(dens$y,na.rm = T)
+    x<-obj
+   n<- dens$y
   }else{
-   x <- exprs(flow.frame)[, channel]
+   x <- exprs(obj)[, channel]
+   n<- which(!is.na(x))
   dens <- .densityForPlot(data = x, adjust.dens,...)
+  stdev <- sd(x,na.rm = T)
   }
-  n<- which(!is.na(x))
+
   if (length(n)< count.lim)
   { 
     if(verbose)
@@ -46,10 +53,10 @@
     return(NA)
   }
 
-  stdev <- sd(x,na.rm = T)
+  
   med <- median(dens$x,na.rm = T)
   if(is.numeric(channel))
-    channel <- colnames(flow.frame)[channel]
+    channel <- colnames(obj)[channel]
   cutoffs <- c()
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
   peak.ind <- all.peaks[[2]]
@@ -242,12 +249,12 @@ if (class(g.h)=="GatingHierarchy")
         else
           f.control1 <- nmRemove(f.control1, col.nm.control1)
       }
-      gates[1] <- .densityGating(flow.frame=f.control1, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
+      gates[1] <- .densityGating(obj=f.control1, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
                                  sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
     }
     else if(!is.na(position[1]))
-      gates[1] <- .densityGating(flow.frame=f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
+      gates[1] <- .densityGating(obj=f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
                                  sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
     else
@@ -276,12 +283,12 @@ if (class(g.h)=="GatingHierarchy")
 
         f.control2 <- nmRemove(f.control2, col.nm.control2)
       }
-      gates[2] <- .densityGating(flow.frame=f.control2, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
+      gates[2] <- .densityGating(obj=f.control2, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                  verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
                                  sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
     }
     else if(!is.na(position[2]))
-      gates[2] <- .densityGating(flow.frame=f, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
+      gates[2] <- .densityGating(obj=f, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                  verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
                                  sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
     else
@@ -533,7 +540,13 @@ return.bimodal<-function(x,cutoffs)
   ## Value:
   ##   the selected cutoff based on defined arguments
   ##------------------------------------------------------------------------------------------
-  dens <- .densityForPlot(dat, adjust.dens=1, ...)
+  if (class(dat)!="density"){
+     dens <- .densityForPlot(dat, adjust.dens=1, ...)
+  }else{
+   warning("Percentiles and SD would be meaningless when dealing with density objects. Make sure to not use them with density objects.")
+   dens <- dat
+  dat <- dat$y
+}
   mins <-c()
   h <- c()
   fun <- splinefun(dens)
@@ -568,7 +581,8 @@ return.bimodal<-function(x,cutoffs)
       return(return.bimodal(dat,mins))
     }else if(!is.na(after))
     {
-      cutoff <-ifelse(after,yes = mins[mins>max.peak][1],no=tail(mins[which(mins<max.peak)],1))
+      cutoff <-ifelse(after,yes = mins[mins>peaks$Peaks[which.max(peaks$P.h)]][1],
+         no=tail(mins[which(mins<peaks$Peaks[which.max(peaks$P.h)])],1))
       if(is.na(cutoff))
         cutoff <-ifelse(after,yes =tail(mins,1),no=mins[1])
       return(cutoff)
@@ -884,7 +898,7 @@ return.bimodal<-function(x,cutoffs)
   ##====================================================================================================================================
   ## Fits an ellipse to the output of density-estimate gating 'flowDensity(.)', and extracts the inside events
   ##  Args:
-  ##   flow.frame: a 'flowFrame' object
+  ##   fcs: a 'flowFrame' object
   ##   channels: a vector of two channel names or their equivalent integer number
   ##   position: a vector of two logical values specifying the position of the cell subset of interest on the 2D plot
   ##   gates: the 'gates' slot in the output of the 'flowDensity(.)' function, can be 'missing'
