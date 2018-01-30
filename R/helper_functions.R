@@ -1,4 +1,4 @@
-.densityGating <- function(flow.frame, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
+.densityGating <- function(obj, channel, n.sd = 1.5, use.percentile = FALSE,  percentile = NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                            bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
                            tinypeak.removal=tinypeak.removal, adjust.dens = 1,count.lim=20,magnitude = .3,slope.w=4, ...){
 
@@ -26,11 +26,16 @@
   ## Authors:
   ##   M. Jafar Taghiyar & Mehrnoush Malek
   ##-----------------------------------------------------------------------------------------------------------------------------------------
-  if(class(flow.frame)=="numeric"|class(flow.frame)=="vector"){
+  if(class(obj)=="numeric"|class(obj)=="vector"){
     x<-flow.frame
     channel <-NA
-  }else{
+  dens <- .densityForPlot(data = x, adjust.dens,...)
+  }else if(class(obj)=="density")
+    dens <- obj
+    channel <-NA
+  else{
    x <- exprs(flow.frame)[, channel]
+  dens <- .densityForPlot(data = x, adjust.dens,...)
   }
   n<- which(!is.na(x))
   if (length(n)< count.lim)
@@ -39,7 +44,7 @@
        cat("Less than", count.lim, "cells, returning NA as a threshold.","\n")
     return(NA)
   }
-  dens <- .densityForPlot(data = x, adjust.dens,...)
+
   stdev <- sd(x,na.rm = T)
   med <- median(dens$x,na.rm = T)
   if(is.numeric(channel))
