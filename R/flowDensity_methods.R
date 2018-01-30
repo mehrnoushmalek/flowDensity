@@ -73,7 +73,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
       obj<-getData(obj,node)
     if (class(obj)=="CellPopulation")
       obj<-.getDataNoNA(obj)
-    .densityGating(flow.frame = obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
+    .densityGating(obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
                    twin.factor=twin.factor,bimodal=bimodal,after.peak=after.peak,alpha = alpha, sd.threshold = sd.threshold,all.cuts = all.cuts,
                    tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w, ...)
 }
