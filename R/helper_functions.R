@@ -30,10 +30,11 @@
     x<-flow.frame
     channel <-NA
   dens <- .densityForPlot(data = x, adjust.dens,...)
-  }else if(class(obj)=="density")
+  }else if(class(obj)=="density"){
     dens <- obj
     channel <-NA
-  else{
+    x<-dens$y
+  }else{
    x <- exprs(flow.frame)[, channel]
   dens <- .densityForPlot(data = x, adjust.dens,...)
   }
