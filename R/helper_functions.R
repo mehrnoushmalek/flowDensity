@@ -49,8 +49,8 @@
   if (length(n)< count.lim)
   { 
     if(verbose)
-       cat("Less than", count.lim, "cells, returning NA as a threshold.","\n")
-    return(NA)
+       cat("Less than", count.lim, "cells, returning -Inf as a threshold.","\n")
+    return(-Inf)
   }
 
   
@@ -168,11 +168,13 @@
   }
   i <- which(!is.na(exprs(f)[,channels[1]]))
   if(length(i)==0)
-    stop('invalid flowFrame input: This flowFrame has 0 cells')
-  if(length(i)<3)
+    warning('invalid flowFrame input: This flowFrame has 0 cells, creating dummy gate.')
+  if(length(i)<count.lim)
   {
     if(is.numeric(channels))
       channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
+    filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+    colnames(filter) <- channels
     cell.population <- new("CellPopulation",
                            flow.frame=f,
                            proportion=100,
@@ -180,7 +182,7 @@
                            channels=channels,
                            position=position,
                            gates=c(0,0),
-                           filter=as.matrix(filter),
+                           filter=filter,
                            index=i)
     return(cell.population)
   }
@@ -304,8 +306,14 @@ if (class(g.h)=="GatingHierarchy")
     X <- exprs(new.f)[cell.index,channels]
     filter <- chull(X)
     filter <- X[c(filter,filter[1]),]
-  } else 
-    filter <- as.matrix(NA)
+  } else{
+     if(is.numeric(channels))
+       channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
+     filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+     colnames(filter) <- channels
+
+   }
+
   
   if(is.numeric(channels))
     channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
@@ -729,7 +737,7 @@ return.bimodal<-function(x,cutoffs)
 .densityForPlot <- function(data, adjust.dens=1,spar=.4,...){
   if (length(data)<2)
   {
-      warning ("Less than 2 cells, returning NA as a Peak.")
+      warning ("Less than 2 cells, returning NA.")
       return(NA)
  }
   dens <- density(data[which(!is.na(data))], adjust=adjust.dens)
@@ -855,7 +863,9 @@ return.bimodal<-function(x,cutoffs)
        filter<-temp@polygons[[1]]@Polygons[[1]]@coords
     }
   }else
-    filter <- as.matrix(NA)
+
+  filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+  colnames(filter) <- channels
   cell@filter <- filter
   cell@index <- index
   if(!missing(gates))
@@ -917,15 +927,18 @@ return.bimodal<-function(x,cutoffs)
     if(length(ind) != 0)
       exprs(new.f) <- exprs(fcs)[-ind, ]
     f.sub.ind <- .subFrame(new.f, channels, position, gates)
-    eg <- dataEllipse(exprs(new.f)[f.sub.ind,channels[1]],
+    if (length(f.sub.ind)<5)
+    {
+        return(fcs[f.sub.ind,])
+    }else{
+      eg <- dataEllipse(exprs(new.f)[f.sub.ind,channels[1]],
                       exprs(new.f)[f.sub.ind,channels[2]],
                       pch=".",
                       center.cex=0,
                       grid=F,
                       levels=c(0,scale),
                       add=F,
-                      draw=F
-    )
+                      draw=F)
     
     ## Extract the coordinates of the elliptic gate
    # p <- list()
@@ -935,23 +948,25 @@ return.bimodal<-function(x,cutoffs)
     
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
-     in.p <- sp::point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
-    tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
-    if(length(ind) != 0){
-      tmp.in.p[ind] <- NA
-      tmp.in.p[-ind] <- in.p
-    }else{
-      tmp.in.p <- in.p
-    }
-    exprs(fcs)[which(tmp.in.p==0), ] <- NA
-  }else{
+       in.p <- sp::point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
+       tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
+      if(length(ind) != 0){
+        tmp.in.p[ind] <- NA
+        tmp.in.p[-ind] <- in.p
+      }else{
+        tmp.in.p <- in.p
+      }
+      exprs(fcs)[which(tmp.in.p==0), ] <- NA
+   }
+   }else{
     f.sub.ind <- .subFrame(fcs, channels, position, gates)
     if(length(f.sub.ind)==0)
       exprs(fcs)[,] <- NA
     else
       exprs(fcs)[-f.sub.ind,] <- NA
-  }
-  return(fcs)
+   }
+   return(fcs)
+
 }
 
 .luline <- function(data.points, point, m, up = TRUE, tp=NULL){
