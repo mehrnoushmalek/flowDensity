@@ -105,7 +105,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
      {
      if(verbose)
        cat("Less than 3 cells, returning NA as a Peak.","\n")
-     return(NA)
+     return(list(Peaks=NA, P.ind=0,P.h=0))
   }
   dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
 }
@@ -137,6 +137,7 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
       }else{
     flow.frame<-obj
   }
+   
     f.exprs <- exprs(flow.frame)
     na.ind <-which(is.na(f.exprs[,1]))
     if(length(na.ind)>0)
@@ -161,8 +162,16 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
         ylab <- paste("<", channels[2], ">:", f.data$desc[which(f.col.names==channels[2])], sep = "")
     if(missing(main))
         main <- "All Events"
+
+    if (nrow(flow.frame)<2)
+   {
+      plot(1, type="n", axes=F,ylab=ylab,xlab=xlab)
+   }else{
+
         graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
+  }
 }
+
 
 
 notSubFrame <- function(obj, channels, position = NA, gates, filter){
