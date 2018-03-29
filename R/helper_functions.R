@@ -766,7 +766,7 @@ return.bimodal<-function(x,cutoffs)
     if(length(ind) != 0)
       f.exprs <- f.exprs[-ind, ]
     #in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
-     in.p <- point.in.polygon(point.x=f.exprs[,channels[1]], point.y=f.exprs[,channels[2]],pol.x=filter[,1],pol.y=filter[,2])
+     in.p <- sp::point.in.polygon(point.x=f.exprs[,channels[1]], point.y=f.exprs[,channels[2]],pol.x=filter[,1],pol.y=filter[,2])
       tmp.in.p <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
     if(length(ind) != 0){
       tmp.in.p[ind] <- NA
@@ -859,7 +859,11 @@ return.bimodal<-function(x,cutoffs)
     poly2 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
 
     if(rgeos::gIntersects( poly1, poly2)){
-       temp <-rgeos::gDifference(poly1,poly2)
+       temp <-tryCatch(rgeos::gDifference(poly1,poly2), error=function(ex) return(1))
+       if (mode(temp)=="numeric")
+       {
+         temp <- rgeos::gDifference(poly1,rgeos::gBuffer(poly2))
+       }
        filter<-temp@polygons[[1]]@Polygons[[1]]@coords
     }
   }else
