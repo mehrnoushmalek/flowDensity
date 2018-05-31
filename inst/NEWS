@@ -1,2 +1,4 @@
-1.13.1: Another functions is used to counts points within a gate, and therefore there's no need for using GEOmap library.
-
+1.13.7:
++ Another functions is used to counts points within a gate, and therefore there's no  need for using GEOmap library.
++ deGate is updated, so it can accept density object and vectors beside flowFrame an flowDensity object.
++ dummy filter will be created, when there is less than 1 cell in the gate.
