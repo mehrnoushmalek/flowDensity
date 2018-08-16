@@ -8,7 +8,7 @@
     Find all peaks in density along with their indices
 }
 \usage{
-getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,...)
+getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,...)
 }
 \arguments{
   \item{obj}{
@@ -31,7 +31,9 @@ getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,...
 \item{verbose}{
  If TRUE, printing warnings.
 }
-
+\item{twin.factor}{
+ If smaller than 1, peaks that are of greater than hieght as the maximum peak*twin.factor will be removed.
+}
  \item{...}{
    Arguments passed to smoothSpline function, spar is 0.4.
   }
