@@ -78,7 +78,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
                    tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w, ...)
 }
 
-getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,...){
+getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,...){
  ##===================================================
   #Finding peaks for flowFrame objects or numeric vectors
  ##==================================================
@@ -110,7 +110,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
   dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
 }
 
-  all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal)
+  all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal,twin.factor=twin.factor)
   return(all.peaks)
 }
 

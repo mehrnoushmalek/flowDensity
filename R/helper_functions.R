@@ -451,7 +451,7 @@ if (class(g.h)=="GatingHierarchy")
     layout.show(l)
 }
 
-.getPeaks <- function(d,peak.removal=1/25){
+.getPeaks <- function(d,peak.removal=1/25,twin.factor=1){
   
   ##=====================================================================================================================
   ## Finds the peaks in the given density
@@ -481,6 +481,21 @@ warning("No peaks could be found, returning the maximum value of density.")
   peaks <-d$x[which.max(d$y)]
   peaks.height<-d$y[which.max(d$y)]
   peaks.ind <-which.max(d$y)
+}
+max.peak <- which.max(peaks.height)
+if ( length(peaks)>1 & twin.factor<1)
+{
+  twins <-which(peaks.height>peaks.height[max.peak]*twin.factor)
+ twins<-  twins[-which(twins==max.peak)]
+  if (length(twins)>0)
+{
+   if( .getIntersect (d,peaks[tail(twins,1)],peaks[max.peak])>peaks.height[max.peak]*twin.factor*.98)
+  {
+   peaks<-peaks[-twins]
+    peaks.height<-peaks.height[-twins]
+    peaks.ind <- peaks.ind[-twins]
+}
+}
 }
   return(list(Peaks=peaks, P.ind=peaks.ind,P.h=peaks.height))
 }
@@ -746,7 +761,7 @@ return.bimodal<-function(x,cutoffs)
   return(dens)
 }
 
-.subFrame <- function(f, channels, position, gates, filter,include.equal=F){
+.subFrame <- function(f, channels, position, gates, filter,include.equal=T){
   
   ##================================================================================================================================
   ## Returns the new flowframe out of flowFrame 'f' gated by the '.densityGating()' thresholds on 'channels'
