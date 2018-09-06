@@ -135,7 +135,7 @@
 .deGate2D <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
                       upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
                       after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-                      gates=c(NA,NA),all.cuts=c(F,F),node=NA,remove.margins=F,count.lim=5, ...){
+                      gates=c(NA,NA),all.cuts=c(F,F),node=NA,remove.margins=F,count.lim=3, ...){
 
   ##=========================================================================================================================
   ## 2D density gating method
@@ -202,7 +202,7 @@
   }
   if(is.na(gates[1])&is.na(gates[2])&is.na(position[1])&is.na(position[2]))
     stop("Improper 'position' value, one position must be not 'NA' or 'gates' should be provided" )
-  if (is.matrix(filter))
+  if (is.matrix(filter) | is.data.frame(filter) )
   {
     inds <-.subFrame(f=f, channels, position=NA, gates, filter,include.equal=F)
     if(is.numeric(channels))
@@ -229,6 +229,8 @@ if (class(g.h)=="GatingHierarchy")
     return(cell.population)
     
   }else{
+  if(!is.na(filter))
+    warning("Filter provided, is not a matrix or data.frame. You can fix it otherwise, flowDensity will estimates the threshold.")
   if(is.na(gates[1])){
     if(use.control[1]&!is.na(position[1])){
       if(is.na(control[1]))
