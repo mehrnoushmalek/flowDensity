@@ -816,22 +816,25 @@ return.bimodal<-function(x,cutoffs)
       f.sub.ind <-c(f.sub.ind,which(f.exprs[,channels[1]]==gates[1]))
   }
   else{
-    if(position[1]&position[2])
+    if(position[1]&position[2]){
       f.sub.ind <- which(f.exprs[,channels[1]] > gates[1] & f.exprs[,channels[2]] > gates[2])
-    else if (position[1]&!position[2])
+    }else if (position[1]&!position[2]){
       f.sub.ind <- which(f.exprs[,channels[1]] > gates[1] & f.exprs[,channels[2]] < gates[2])
-    else if (!position[1]&position[2])
+    }else if (!position[1]&position[2]){
       f.sub.ind <- which(f.exprs[,channels[1]] < gates[1] & f.exprs[,channels[2]] > gates[2])
-    else
+    }else{
       f.sub.ind <- which(f.exprs[,channels[1]] < gates[1] & f.exprs[,channels[2]] < gates[2])
-    
+    }
     if(include.equal)
      {
-       if(!is.na(gates[2]))
+       if(!is.na(gates[2]) & is.na(gates[1]))
          f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[2]]==gates[2]))
-        if(!is.na(gates[1]))
+        if(!is.na(gates[1]) & is.na(gates[2]))
+          
          f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[1]]==gates[1]))
-
+        if(!is.na(gates[1]) & !is.na(gates[2]))
+          f.sub.ind <-c(f.sub.ind, which(f.exprs[,channels[2]]==gates[2] &f.exprs[,channels[1]]==gates[1] ))
+ 
     }
   }
   return(f.sub.ind)
