@@ -100,7 +100,7 @@
       cutoffs <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
     }else{
       flex.point <- .getFlex(dens, peak.ind=peak.ind,magnitude = magnitude)
-      if(!is.na(flex.point))
+      if(!is.na(flex.point) & !is.null(flex.point))
       { 
         if(verbose)
           print("Cutoff is based on inflection point.")
@@ -122,8 +122,9 @@
    if(all.cuts)
      return(cutoffs)
 
-     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,w=slope.w,
+     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,w=slope.w,sd.threshold,n.sd=n.sd,
                                upper=upper,alpha=alpha,twin.factor=twin.factor,bimodal=bimodal,after=after.peak,magnitude=magnitude, ...)
+
    }
    return(cutoffs)
  }
@@ -551,7 +552,7 @@ return.bimodal<-function(x,cutoffs)
   return(cutoffs[which.min(scores)])
 }
 
-.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after,w=w, ...){
+.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,after,w=w, sd.threshold,n.sd,...){
   ##==========================================================================================
   ## Returns the cutoff based upon which the .densityGating() function decides on the thresholds
   ## Args:
@@ -565,6 +566,7 @@ return.bimodal<-function(x,cutoffs)
   ## Value:
   ##   the selected cutoff based on defined arguments
   ##------------------------------------------------------------------------------------------
+
   if (class(dat)!="density"){
      dens <- .densityForPlot(dat, adjust.dens=1, ...)
   }else{
@@ -579,15 +581,19 @@ return.bimodal<-function(x,cutoffs)
   h.p <- fun(peaks$Peaks);
   d<- .getDist(peaks$Peaks)
   max.peak<-max(peaks$P.h)
+
   for(i in 1:(length(peaks$Peaks)-1)){
     valley <- cutoffs[i]
+
     if ((dens$y[which.min(abs(dens$x-valley))]>twin.factor*dens$y[peaks$P.ind[i]])& (dens$y[which.min(abs(dens$x-valley))]>twin.factor*dens$y[peaks$P.ind[i+1]]))
     {
+
       valley <- NA
 
     }else{
       mins<-c(mins,valley)
     }
+
   }
     if (suppressWarnings(all(is.na(mins))))
     {
@@ -597,10 +603,17 @@ return.bimodal<-function(x,cutoffs)
       {
         return(.trackSlope(dens=dens, peak.ind=ifelse(upper,yes = tail(peaks$P.ind,1),no =peaks$P.ind[1]),  upper=upper, alpha=alpha, magnitude = magnitude, w=w))
 
-      }
+      }else if (!is.na(sd.threshold))
+    {
+      upper <- as.logical(ifelse(tail(peaks$P.ind,1)>mean(dens$x,na.rm=T), FALSE, TRUE))
+     return(ifelse(upper, yes=tail(peaks$P.ind,1)+n.sd*sd(dens$x,na.rm=T), no=tail(peaks$P.ind,1)-n.sd*sd(dens$x,na.rm=T)))
+    }else{
+    stop("After using twin.factor, no threshold can be claculated, please set upper, percentile or sd.threshold")
+}
       
     }else if(length(mins)>1)
     {
+
     if (bimodal)
     {
       return(return.bimodal(dat,mins))
@@ -793,9 +806,9 @@ return.bimodal<-function(x,cutoffs)
     }
      f.sub.ind <- which(tmp.in.p!=0)
     return(f.sub.ind)
-  }
-  else if(is.na(position[1])&is.na(position[2]))
+  }else if(is.na(position[1])&is.na(position[2])){
     stop("Improper 'position' value, one position must be not 'NA'")
+}else{
   if(is.na(position[1])){
     if(position[2])
     {
@@ -805,8 +818,7 @@ return.bimodal<-function(x,cutoffs)
     }
     if(include.equal)
       f.sub.ind <-c(f.sub.ind,which(f.exprs[,channels[2]]==gates[2]))
-  }
-  else if(is.na(position[2])){
+  }else if(is.na(position[2])){
     if(position[1]){
       f.sub.ind <- which(f.exprs[,channels[1]] > gates[1])
     }else{
@@ -814,8 +826,7 @@ return.bimodal<-function(x,cutoffs)
     }
     if(include.equal)
       f.sub.ind <-c(f.sub.ind,which(f.exprs[,channels[1]]==gates[1]))
-  }
-  else{
+  }else{
     if(position[1]&position[2]){
       f.sub.ind <- which(f.exprs[,channels[1]] > gates[1] & f.exprs[,channels[2]] > gates[2])
     }else if (position[1]&!position[2]){
@@ -837,6 +848,7 @@ return.bimodal<-function(x,cutoffs)
  
     }
   }
+}
   return(f.sub.ind)
 }
 .notSubFrame <- function(flow.frame, channels, position = NA, gates, filter){
