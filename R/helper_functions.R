@@ -605,8 +605,8 @@ return.bimodal<-function(x,cutoffs)
 
       }else if (!is.na(sd.threshold))
     {
-      upper <- as.logical(ifelse(tail(peaks$P.ind,1)>mean(dens$x,na.rm=T), FALSE, TRUE))
-     return(ifelse(upper, yes=tail(peaks$P.ind,1)+n.sd*sd(dens$x,na.rm=T), no=tail(peaks$P.ind,1)-n.sd*sd(dens$x,na.rm=T)))
+      upper <- as.logical(ifelse(tail(peaks$Peaks,1)>mean(dens$x,na.rm=T), FALSE, TRUE))
+     return(ifelse(upper, yes=tail(peaks$Peaks,1)+n.sd*sd(dens$x,na.rm=T), no=tail(peaks$Peaks,1)-n.sd*sd(dens$x,na.rm=T)))
     }else{
     stop("After using twin.factor, no threshold can be claculated, please set upper, percentile or sd.threshold")
 }
