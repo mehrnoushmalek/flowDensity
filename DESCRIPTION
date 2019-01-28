@@ -24,6 +24,6 @@ SystemRequirements:  GEOS (>= 3.2.0);for building from source: GEOS
         William Kyngesburye at http://www.kyngchaos.com/ may be used
         for source installs on OSX.
 License: Artistic-2.0
-biocViews: Bioinformatics, FlowCytometry, CellBiology, Clustering,
+biocViews: ImmunoOncology, Bioinformatics, FlowCytometry, CellBiology, Clustering,
         Cancer, FlowCytData, StemCells, DensityGating
 LazyLoad: yes
