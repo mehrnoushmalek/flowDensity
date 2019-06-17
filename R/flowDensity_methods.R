@@ -114,7 +114,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
   return(all.peaks)
 }
 
-plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ...){
+plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch = ".",density.overlay=F,dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"), adjust.dens=1, ...){
 
     ##===================================================
     ## Plot flowCytometry data with density-based color
@@ -162,7 +162,13 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
         ylab <- paste("<", channels[2], ">:", f.data$desc[which(f.col.names==channels[2])], sep = "")
     if(missing(main))
         main <- "All Events"
+    if (missing(xlim))
+       xlim <- range(f.exprs[,channels[1]],axes=F,na.rm = T)
+    if (missing(ylim))
+       ylim <- range(f.exprs[,channels[2]],axes=F,na.rm = T)
 
+   if (!density.overlay)
+{
     if (nrow(flow.frame)<2)
    {
       plot(1, type="n", axes=F,ylab=ylab,xlab=xlab)
@@ -170,6 +176,24 @@ plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, pch = ".", ..
 
         graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
   }
+}else{
+
+     graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "", ...)
+  
+    x.dens <- density(f.exprs[,channels[1]],adjust=adjust.dens)
+    par(new=T)
+  
+    graphics::plot(x.dens$x, x.dens$y,main =main,cex=dens.cex[1],col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
+         xlab=xlab,ylab=ylab, ...)
+    par(new=T)
+
+    y.dens <- density(f.exprs[,channels[2]],adjust=adjust.dens)
+    graphics::plot(y.dens$y,y.dens$x,main ="",ylim=ylim,cex=dens.cex[2],col=dens.col[2],type= dens.type[2], pch=".",
+         ylab="",xlab="",xaxt="n", ...)
+
+
+
+}
 }
 
 
