@@ -36,6 +36,21 @@ plotDens(obj, channels,node=NA ,  col, main, xlab, ylab, pch=".", ...)
   \item{ylab}{
   	a title for the y axis: see '?plot'  	
   }
+\item{xlim}{
+  	a range for the x axis: see '?plot'
+  }
+\item{ylim}{
+  	a range for the y axis: see '?plot'
+  }
+  \item{density.overlay}{
+  	Logical value to plot densiity overlays on the x and y axes. Default is FALSE.  	
+  }
+ \item{density.type}{
+  	2-character string giving the type of plot desired, see type in '?plot'
+  }
+ \item{density.col}{
+  	2-character string giving the color of plot desired for density curves.
+  }
   \item{pch}{
   	Either an integer specifying a symbol or a single character to be used as the default in plotting points: see '?par'.
   }
@@ -47,7 +62,7 @@ plotDens(obj, channels,node=NA ,  col, main, xlab, ylab, pch=".", ...)
 
 
 \value{
-  a scatter dot plot  with density-based colors.
+  a scatter dot plot  with density-based colors, along with density overlays if desired. Set xlim and ylim when plotting if you would like to have all your plots to have same range on the axes (specially when density.overlay=TRUE)
 }
 
 \author{
