@@ -12,7 +12,7 @@
 }
 \usage{
 plotDens(obj, channels,node=NA ,  col, main,xlim, ylim, xlab, ylab, pch=".",density.overlay="TRUE",
-  dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"), ...)
+  dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transparency=1, adjust.dens=1, ...)
 }
 \arguments{
   \item{obj}{
@@ -44,13 +44,20 @@ plotDens(obj, channels,node=NA ,  col, main,xlim, ylim, xlab, ylab, pch=".",dens
   	a range for the y axis: see '?plot'
   }
   \item{density.overlay}{
-  	Logical value to plot density overlays on the x and y axes. Default is FALSE.  	
+  	Logical vector of length 2, to plot density overlays on the x and y axes. Default is c(FALSE,FALSE).  	
   }
  \item{density.type}{
   	2-character string giving the type of plot desired, see type in '?plot'
   }
  \item{density.col}{
   	2-character string giving the color of plot desired for density curves.
+  }
+\item{transparency}{
+      Transparency of the bi-variate plot, to see the densitu curves in the background. The lower it is, the more transparent the plot is.
+  	
+  }
+ \item{adjust.dens}{
+    The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
   \item{pch}{
   	Either an integer specifying a symbol or a single character to be used as the default in plotting points: see '?par'.
