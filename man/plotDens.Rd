@@ -43,7 +43,7 @@ plotDens(obj, channels,node=NA ,  col, main, xlab, ylab, pch=".", ...)
   	a range for the y axis: see '?plot'
   }
   \item{density.overlay}{
-  	Logical value to plot densiity overlays on the x and y axes. Default is FALSE.  	
+  	Logical value to plot density overlays on the x and y axes. Default is FALSE.  	
   }
  \item{density.type}{
   	2-character string giving the type of plot desired, see type in '?plot'
