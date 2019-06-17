@@ -11,7 +11,8 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(obj, channels,node=NA ,  col, main, xlab, ylab, pch=".", ...)
+plotDens(obj, channels,node=NA ,  col, main,xlim, ylim, xlab, ylab, pch=".",density.overlay="TRUE",
+  dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"), ...)
 }
 \arguments{
   \item{obj}{
