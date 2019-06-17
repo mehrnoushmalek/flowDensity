@@ -1,7 +1,7 @@
 Package: flowDensity
 Type: Package
 Title: Sequential Flow Cytometry Data Gating
-Version: 1.17.2
+Version: 1.19.1
 Date: 2014-10-14
 Author: Mehrnoush Malek,M. Jafar Taghiyar
 Maintainer: Mehrnoush Malek <mmalekes@bccrc.ca>
@@ -24,6 +24,6 @@ SystemRequirements:  GEOS (>= 3.2.0);for building from source: GEOS
         William Kyngesburye at http://www.kyngchaos.com/ may be used
         for source installs on OSX.
 License: Artistic-2.0
-biocViews: ImmunoOncology, Bioinformatics, FlowCytometry, CellBiology, Clustering,
+biocViews: Bioinformatics, FlowCytometry, CellBiology, Clustering,
         Cancer, FlowCytData, StemCells, DensityGating
 LazyLoad: yes
