@@ -164,10 +164,9 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
     if(missing(main))
         main <- "All Events"
     if (missing(xlim))
-       xlim <- range(f.exprs[,channels[1]],axes=F,na.rm = T)
+       xlim <- range(f.exprs[,channels[1]],na.rm = T)
     if (missing(ylim))
-       ylim <- range(f.exprs[,channels[2]],axes=F,na.rm = T)
-
+       ylim <- range(f.exprs[,channels[2]],na.rm = T)
    if (!any(density.overlay))
 {
     if (nrow(flow.frame)<2)
@@ -181,7 +180,7 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
      if (density.overlay[1])
        {
          x.dens <- density(f.exprs[,channels[1]],adjust=adjust.dens)
-          graphics::plot(x.dens$x, x.dens$y,main =main,cex=dens.cex[1],col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",
+          graphics::plot(x.dens$x, x.dens$y,main =main,cex=dens.cex[1],col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
            xlab=xlab,ylab=ylab, ...)
          par(new=T)
        }
@@ -190,12 +189,12 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
 
          y.dens <- density(f.exprs[,channels[2]],adjust=adjust.dens)
          graphics::plot(y.dens$y,y.dens$x,main ="",cex=dens.cex[2],col=dens.col[2],type= dens.type[2], pch=".",
-         ylab="",xlab="",xaxt="n", ...)
+         ylab="",xlab="",xaxt="n", ylim=ylim,...)
          par(new=T)
 
        }
       col<-adjustcolor(col,alpha.f = transparency)
-     graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",ylim=ylim,xlim=xlim, ...)
+     graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "", ...)
 
 }
 }
