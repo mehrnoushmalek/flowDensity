@@ -174,7 +174,7 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
       plot(1, type="n", axes=F,ylab=ylab,xlab=xlab)
    }else{
 
-        graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab,xlim=xlim,ylim=ylim, ...)
   }
 }else{
      if (density.overlay[1])
