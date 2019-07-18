@@ -174,7 +174,7 @@ dens.col=c("grey48","grey48"),cex=1, dens.type=c("l","l"),transparency=1, adjust
       plot(1, type="n", axes=F,ylab=ylab,xlab=xlab)
    }else{
       
-        graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab,xlim=xlim,ylim=ylim, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab,cex=cex, ylab = ylab,xlim=xlim,ylim=ylim, ...)
         if (show.contour)
           {
             contour(x=flow.frame,y = channels, add=TRUE, col=contour.col, lty=1,lwd=1.5)
