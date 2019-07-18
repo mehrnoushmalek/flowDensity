@@ -70,7 +70,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
   
   if (class(obj)=="GatingHierarchy")
 
-      obj<-getData(obj,node)
+      obj<-gh_pop_get_data(obj,node)
     if (class(obj)=="CellPopulation")
       obj<-.getDataNoNA(obj)
     .densityGating(obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
@@ -87,7 +87,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
     channel <-NA
   }else  if (class(obj)=="GatingHierarchy")
       {
-      obj<-getData(obj,node)
+      obj<-gh_pop_get_data(obj,node)
       x <- exprs(obj)[, channel]
    }else if (class(obj)=="CellPopulation")
      { 
@@ -115,7 +115,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
 }
 
 plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch = ".",density.overlay=c(FALSE,FALSE),
-dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transparency=1, adjust.dens=1, ...){
+dens.col=c("grey48","grey48"),cex=1, dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F,contour.col="darkgrey", ...){
 
     ##===================================================
     ## Plot flowCytometry data with density-based color
@@ -125,11 +125,11 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
       {
         if(!is.na(node))
         {
-          flow.frame <-flowWorkspace::getData(obj,node)
+          flow.frame <-flowWorkspace::gh_pop_get_data(obj,node)
         }else
         {
           warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-          flow.frame <-flowWorkspace::getData(obj)
+          flow.frame <-flowWorkspace::gh_pop_get_data(obj)
         }
       }
    if(class(obj)=="CellPopulation"){
@@ -173,14 +173,19 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
    {
       plot(1, type="n", axes=F,ylab=ylab,xlab=xlab)
    }else{
-
+      
         graphics::plot(f.exprs[,channels], col = col, pch = pch, main = main, xlab = xlab, ylab = ylab,xlim=xlim,ylim=ylim, ...)
+        if (show.contour)
+          {
+            contour(x=flow.frame,y = channels, add=TRUE, col=contour.col, lty=1,lwd=1.5)
+          }
+
   }
 }else{
      if (density.overlay[1])
        {
          x.dens <- density(f.exprs[,channels[1]],adjust=adjust.dens)
-          graphics::plot(x.dens$x, x.dens$y,main =main,cex=dens.cex[1],col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
+          graphics::plot(x.dens$x, x.dens$y,main =main,cex=2.2,col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
            xlab=xlab,ylab=ylab, ...)
          par(new=T)
        }
@@ -188,13 +193,13 @@ dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transpar
        {
 
          y.dens <- density(f.exprs[,channels[2]],adjust=adjust.dens)
-         graphics::plot(y.dens$y,y.dens$x,main ="",cex=dens.cex[2],col=dens.col[2],type= dens.type[2], pch=".",
+         graphics::plot(y.dens$y,y.dens$x,main ="",cex=2.2,col=dens.col[2],type= dens.type[2], pch=".",
          ylab="",xlab="",xaxt="n", ylim=ylim,...)
          par(new=T)
 
        }
       col<-adjustcolor(col,alpha.f = transparency)
-     graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "", ...)
+     graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex, ...)
 
 }
 }
