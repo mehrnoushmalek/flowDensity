@@ -11,8 +11,9 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(obj, channels,node=NA ,  col, main,xlim, ylim, xlab, ylab, pch=".",density.overlay="TRUE",
-  dens.col=c("grey48","grey48"),dens.cex=c(2.5,2.5), dens.type=c("l","l"),transparency=1, adjust.dens=1, ...)
+plotDens(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch = ".",density.overlay=c(FALSE,FALSE),
+dens.col=c("grey48","grey48"),cex=1, dens.type=c("l","l"),transparency=1,
+ adjust.dens=1,show.contour=F,contour.col="darkgrey", ...)
 }
 \arguments{
   \item{obj}{
@@ -56,6 +57,13 @@ plotDens(obj, channels,node=NA ,  col, main,xlim, ylim, xlab, ylab, pch=".",dens
       Transparency of the bi-variate plot, to see the densitu curves in the background. The lower it is, the more transparent the plot is.
   	
   }
+\item{show.contour}{
+      Default is FALSE. It add the contourLines to plot.
+}
+\item{contour.col}
+{
+    Color for contourLines. Default is darkgrey.
+}
  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
