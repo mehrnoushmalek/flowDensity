@@ -10,6 +10,7 @@ Description: This package provides tools for automated sequential
         density of the data.
 Imports: flowCore, 
          graphics,
+         flowViz (>= 1.46.1),
          car,
          sp,
          rgeos,
