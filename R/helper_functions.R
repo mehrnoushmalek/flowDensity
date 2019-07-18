@@ -158,13 +158,13 @@
     if(!is.na(node))
     {
 
-      f <-flowWorkspace::getData(f,node)
+      f <-flowWorkspace::gh_pop_get_data(f,node)
     }else
       {
         warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
         g.h <- f
 
-        f <-flowWorkspace::getData(f)
+        f <-flowWorkspace::gh_pop_get_data(f)
       }
   }
   i <- which(!is.na(exprs(f)[,channels[1]]))
