@@ -69,7 +69,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
 \item{count.lim}{
    Cutoff for number of events to set color. Default is 20. Samples with less than 20 cells will be plotted in black.
 }
-\item{verbose}
+\item{verbose}{
    Default is True. It will add that the sample has 0 cells in the plot title.
 }
   \item{pch}{
