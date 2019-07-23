@@ -11,9 +11,8 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch = ".",density.overlay=c(FALSE,FALSE),
-dens.col=c("grey48","grey48"),cex=1, dens.type=c("l","l"),transparency=1,
- adjust.dens=1,show.contour=F,contour.col="darkgrey", ...)
+plotDens(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
+dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", ...)
 }
 \arguments{
   \item{obj}{
@@ -67,6 +66,12 @@ dens.col=c("grey48","grey48"),cex=1, dens.type=c("l","l"),transparency=1,
  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
+\item{count.lim}{
+   Cutoff for number of events to set color. Default is 20. Samples with less than 20 cells will be plotted in black.
+}
+\item{verbose}
+   Default is True. It will add that the sample has 0 cells in the plot title.
+}
   \item{pch}{
   	Either an integer specifying a symbol or a single character to be used as the default in plotting points: see '?par'.
   }
