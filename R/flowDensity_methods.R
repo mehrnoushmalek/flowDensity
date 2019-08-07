@@ -203,7 +203,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
                        ylab="",xlab="",xaxt="n", ylim=ylim)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
       
       }else if (density.overlay[1] & !density.overlay[2])
       {
@@ -216,7 +216,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
                        ylab="",xlab="",xaxt="n", ylim=ylim)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
         
       }else{
         graphics::plot(1,main ="",col="white", type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
@@ -227,7 +227,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
                        ylab="",xlab="",xaxt="n", ylim=ylim)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
       }
       
   }
