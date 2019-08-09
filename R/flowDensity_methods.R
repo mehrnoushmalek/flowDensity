@@ -195,15 +195,15 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
       {
         x.dens <- density(f.exprs[,channels[1]],adjust=adjust.dens)
         graphics::plot(x.dens$x, x.dens$y,main =main,cex=2.2,col=dens.col[1], type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
-                       xlab=xlab,ylab=ylab)
+                       xlab=xlab,ylab=ylab,...)
         par(new=T)
       
         y.dens <- density(f.exprs[,channels[2]],adjust=adjust.dens)
         graphics::plot(y.dens$y,y.dens$x,main ="",cex=2.2,col=dens.col[2],type= dens.type[2], pch=".",
-                       ylab="",xlab="",xaxt="n", ylim=ylim)
+                       ylab="",xlab="",xaxt="n", ylim=ylim,...)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim)
       
       }else if (density.overlay[1] & !density.overlay[2])
       {
@@ -216,18 +216,18 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
                        ylab="",xlab="",xaxt="n", ylim=ylim)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim)
         
       }else{
         graphics::plot(1,main ="",col="white", type= dens.type[1],pch=".",yaxt="n",xlim=xlim,
-                       xlab=xlab,ylab=ylab)
+                       xlab=xlab,ylab=ylab,...)
         par(new=T)
         y.dens <- density(f.exprs[,channels[2]],adjust=adjust.dens)
         graphics::plot(y.dens$y,y.dens$x,main ="",cex=2.2,col=dens.col[2],type= dens.type[2], pch=".",
-                       ylab="",xlab="",xaxt="n", ylim=ylim)
+                       ylab="",xlab="",xaxt="n", ylim=ylim,...)
         par(new=T)
         col<-adjustcolor(col,alpha.f = transparency)
-        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim, ...)
+        graphics::plot(f.exprs[,channels], col = col, pch = pch,axes=F,xlab="",ylab="",main = "",cex=cex,ylim=ylim,xlim=xlim)
       }
       
   }
