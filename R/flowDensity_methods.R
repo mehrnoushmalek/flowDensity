@@ -165,7 +165,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
   if (nrow(flow.frame)<1)
   {
 
-    plot(1, type="n",main = paste0(main,ifelse(verbose,yes=": 0 cells",no="")), axes=F, ylab=ylab, xlab=xlab)
+    plot(1, type="n",main = paste0(main,ifelse(verbose,yes=": 0 cells",no="")), axes=F, ylab=ylab, xlab=xlab,...)
   }else if (nrow(flow.frame)==1)
   {
       if (missing(xlim))
