@@ -8,21 +8,15 @@
 #' 
 #' @param fr \code{flowFrame}
 #' @param pp_res \code{list} the preprocesssing results returned from preprocessing module. (Not used)
-#' @param xChannel, yChannel \code{character} specifies channels/markers to be used 
-#'                                             for 1d gating, leave xChannel as \code{NA}
+#' @param channels \code{character} specifies channels/markers to be used 
 #' @param ... other arguments passed to flowDensity 
 #' @return a \code{rectangleGate}(1d) or \code{polygonGate} (2d)
-.flowDensity <- function(fr, pp_res, xChannel = NA, yChannel = NA, ...){
-  
-  chnls <- yChannel
-  if(!is.na(xChannel)){
-    chnls <- c(xChannel,yChannel)
-  }
-  
-  if(length(chnls)==2)
-    .flowDensity.2d(fr, channels = chnls, ...)
+.flowDensity <- function(fr, pp_res, channels = NA, ...){
+    
+  if(length(channels)==2)
+    .flowDensity.2d(fr, channels = channels, ...)
   else
-    .flowDensity.1d(fr, channel = chnls, ...)
+    .flowDensity.1d(fr, channel = channels, ...)
   
 }
 
