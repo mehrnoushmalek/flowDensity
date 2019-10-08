@@ -59,20 +59,20 @@
 #' 
 #' @return a \code{polygonGate}
 
-.flowDensity.2d <- function (f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
-   upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
-   after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-   gates=c(NA,NA),all.cuts=c(F,F),node=NA,remove.margins=F,count.lim=5, ...)
+.flowDensity.2d <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
+                      upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
+                      after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
+                      gates=c(NA,NA),all.cuts=c(F,F),node=NA,remove.margins=F,count.lim=3, ...)
 {
   if (class(f)=="GatingHierarchy")
   {
     if(node!='root')
     {
-      f <-flowWorkspace::getData(f,node)
+      f <-flowWorkspace::gh_pop_get_data(f,node)
     }else
     {
       warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-      f <-flowWorkspace::getData(f,node)
+      f <-flowWorkspace::gh_pop_get_data(f)
     }
   }
   col.nm <- c(grep(colnames(f), pattern = "FSC"), grep(colnames(f), 
@@ -83,10 +83,18 @@
   i <- which(!is.na(exprs(f)[, channels[1]]))
   if (length(i) == 0) 
     stop("invalid flowFrame input: all NA values")
+  if(length(i)<count.lim)
+  {
+    if(is.numeric(channels))
+      channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
+    filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+    colnames(filter) <- channels
+     return(polygonGate(.gate = filter))
+  }else{
   args <- names(list(...))
-  eligible.args <- c('use.percentile', 'use.upper','upper', 'percentile', 'sd.threshold','filter',
-                     'n.sd','twin.factor','bimodal','after.peak','use.control', 'control', 'alpha',
-                     'scale', 'ellip.gate','tinypeak.removal','remove.margins','count.lim','verbose')
+   eligible.args <- c('use.percentile', 'use.upper','upper', 'percentile', 'sd.threshold','filter', 
+                      'count.lim','gates', 'n.sd','twin.factor','bimodal','after.peak','use.control',
+                      'control', 'alpha', 'scale', 'ellip.gate','tinypeak.removal','verbose')
   if (length(setdiff(args, eligible.args) != 0)) 
     warning("unused argument(s): ", setdiff(args, eligible.args))
   col.nm <- c(grep(colnames(f), pattern="FSC"), grep(colnames(f), pattern="SSC"))
@@ -100,23 +108,10 @@
   if (is.na(gates[1]) & is.na(gates[2]) & is.na(position[1]) & 
       is.na(position[2])) 
     stop("Improper 'position' value, one position must be not 'NA' or 'gates' should be provided")
-  if (is.matrix(filter))
+  if (is.matrix(filter) | is.data.frame(filter) )
   {
-    inds <-.subFrame(f=f, channels, position=NA, gates, filter,include.equal=F)
-    if(is.numeric(channels))
-      channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
-    cell.population  <- new("CellPopulation", flow.frame=f, channels=channels, position=c(NA,NA))
-    exprs(cell.population@flow.frame)[-inds, ] <- NA
-    cell.population@cell.count <- length(inds)
-    cell.population@position <-position
-
-    cell.population@proportion <- length(inds)/length(i)*100
-    cell.population@filter <- filter
-    cell.population@index<- inds
-    g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
-    g2<-ifelse(is.na(position[2]),yes = NA,no=ifelse(test = position[2],yes =min(filter[,2]),no = max(filter[,2]) ))
-    cell.population@gates <- c(g1,g2)
-    return(cell.population)
+    
+         return(polygonGate(.gate = filter))
     
   }else{
   if (is.na(gates[1])) {
@@ -187,6 +182,6 @@
   }
 
   colnames(filter) <- channels
-  polygonGate(.gate = filter)
-  
+  return(polygonGate(.gate = filter))
+ } 
 }
