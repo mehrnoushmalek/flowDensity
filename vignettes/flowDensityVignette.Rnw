@@ -2,7 +2,7 @@
 %\VignetteDepends{flowCore}
 %\VignetteKeywords{}
 %\VignettePackage{flowDensity}
-\documentclass{scrartcl}
+\documentclass{article}
 \usepackage{graphicx}
 \title{flowDensity}
 \subtitle{Automated alternative to the current manual gating practice}
