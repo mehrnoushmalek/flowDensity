@@ -188,9 +188,8 @@
     return(cell.population)
   }
   args <- names(list(...))
-  eligible.args <- c('use.percentile', 'use.upper','upper', 'percentile', 'sd.threshold','filter',
-                     'n.sd','twin.factor','bimodal','after.peak','use.control', 'control', 'alpha',
-                     'scale', 'ellip.gate','tinypeak.removal','verbose')
+  eligible.args <- c('use.percentile', 'use.upper','upper', 'percentile', 'sd.threshold','filter', 'count.lim','gates',
+                     'n.sd','twin.factor','bimodal','after.peak','use.control', 'control', 'alpha', 'scale', 'ellip.gate','tinypeak.removal','verbose')
   if(length(setdiff(args, eligible.args)!=0))
     warning('unused argument(s): ', setdiff(args, eligible.args))
   col.nm <- c(grep(colnames(f), pattern="FSC"), grep(colnames(f), pattern="SSC"))
