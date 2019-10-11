@@ -26,5 +26,9 @@ SystemRequirements:  GEOS (>= 3.2.0);for building from source: GEOS
         for source installs on OSX.
 License: Artistic-2.0
 biocViews: Bioinformatics, FlowCytometry, CellBiology, Clustering,
-        Cancer, FlowCytData, StemCells, DensityGating
+        Cancer, FlowCytData,  DataRepresentation, StemCell, DensityGating
+Suggests:
+         knitr
 LazyLoad: yes
+VignetteBuilder: knitr
+SystemRequirements: xml2, GNU make, C++11
