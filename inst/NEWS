@@ -1,8 +1,19 @@
 flowDensity 1.0.0
 ----------------------------------------------------------------
 
-First submission
+-First submission
+
+flowDensity 1.11.2
+----------------------------------------------------------------
+
+-Updating mans, and removing GEOmap dependency
+
+flowDensity 1.13.4
+----------------------------------------------------------------
+
+-Updating deGate to accept vectors and density objects
 
 flowDensity 1.19.8
 ----------------------------------------------------------------
-Adding densityoverlay option to plotDens.
+
+-Adding densityoverlay option to plotDens, and changing sweave to markdown
