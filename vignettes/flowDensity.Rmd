@@ -47,7 +47,7 @@ interest.
 A 2D gate consists of two channels (dimensions) or equivalently a
 phenotype with two markers.
 In addition, the corresponding expression
-level for each channel is given. For example, phenotype ``CD19+CD20-'' has markers CD19 and CD20 with
+level for each channel is given. For example, phenotype `CD19+CD20-` has markers CD19 and CD20 with
 expression values `positive` and `negative`, respectively.
 
 To use flowDensity, this 2D gate is input to the function `flowDensity(.)`.
@@ -59,32 +59,30 @@ Let assume for example that CD19 is on channel `PerCP-Cy5-5-A` and
 CD20 is on channel `APC-H7-A`. Therefore, the
 corresponding input arguments are:
 
-`channels=c(PerCP-Cy5-5-A, APC-H7-A)` and `position=c(TRUE,FALSE)`.
+`channels=c("PerCP-Cy5-5-A", "APC-H7-A")` and `position=c(TRUE,FALSE)`.
 
 In general, `channels` argument can be set using either
 names of the channels or their corresponding indices (column numbers
-in the FCS file) and `position` argument could be one the four logical pairs `(TRUE,FALSE)`, `(FALSE,TRUE)`, `(FALSE,FALSE)`
+in the FCS file) and `position` argument could be one of the four logical pairs `(TRUE,FALSE)`, `(FALSE,TRUE)`, `(FALSE,FALSE)`
 and `(TRUE,TRUE)`. If the user needs to set
 the thresholds for only one of the channels, then position for the
 other channel must be set to `NA`.
 
-The expression value high can also be
-identified by flowDensity but some specific (optional) arguments must be set accordingly.
-More on this later.
 
-In addition to the above arguments, either `cell.population` or
+In addition to the above arguments, `cell.population`, `gatingHierarchy` or
 `flow.frame` argument is required where the former is an object
 of class `CellPopulation` loaded from flowDensity namespace and the
-latter is a `flowFrame` object loaded from flowCore namespace.
+latter is a `flowFrame` object loaded from flowCore namespace. It is also possible to provide the polygon filter. In this case `position` can be set to anything, and the `filter` should be a `data.frame` or `matrix` where the columns match with the FCS file `channels`.
 
 # Examples
 In this section we present several examples to elaborate how to use the
 `flowDensity(.)` function.
+
 ## Extracting Bcell
 This example shows how to use flowDensity to extract B cells by using
 the gating strategy Singlet/viability-CD3-/CD19+CD20+ or
-equivalently lsinglets/Bcell. 
-```{r bcell, eval=FALSE}
+equivalently singlets/Bcell. 
+```{r bcell,fig.show='asis',fig.keep='all'}
 library(flowCore)
 library(flowDensity)
 data_dir <- system.file("extdata", package = "flowDensity")
@@ -93,9 +91,19 @@ f
 sngl <- flowDensity(f,channels = c("FSC-A","FSC-H"),position = c(F,F),
                     percentile =c(.99999,.99999),use.percentile = c(T,T),
                     ellip.gate = T,scale = .99 )
+```
+
+```{r}
 plotDens(f,c(1,2))
 lines(sngl@filter,type="l")
 ```
+
+`plot` function in flowDensity can also be used to show the population, gates, counts, and densities of channels. ts arguments are a `flowFrame` object and an object of class `CellPopulation`.
+
+```{r plot}
+plot(f,sngl)
+```
+
 ## Gating rare cell populations
 To emulate the practice of expert humans for identification of high, flowDensity provides
 two parameters that help fine tune the algorithm for identification of small cell populations. These
@@ -105,55 +113,57 @@ parameters are set by providing following arguments in the
 * `upper`: This argument is used to identify small cell
     subsets present at the tail or head of the density distribution
     curve where they are typically camouflaged due to the presence of adjacent
-    large cell populations. If it is set to ``TRUE'' (``FALSE''),
+    large cell populations. If it is set to `TRUE (FALS`),
     flowDensity checks the tail (head) of the density distribution. If it is
-    required to use `upper` for one channel and not the other, the ``NA''
+    required to use `upper` for one channel and not the other, the `NA`
     value should be used; for example `upper=c(FALSE,NA)`.
 * `use.upper`: This argument is only used when the user wants to force the algorithm to use the upper argument no matter 
     how many peaks are found in the density distribution.
 *  `percentile`: This argument gets a value of $[0,1)$ and provides the ability to set a
     threshold based on the percentile of the density distribution. To
     force using this threshold, argument `use.percentile` should
-    be set to ``TRUE'', otherwise the percentile threshold will be
+    be set to `TRUE`, otherwise the percentile threshold will be
     automatically used when appropriate.
+*   `bi.modal`: This arguments can be set, when there are more than two populations. It tries to split the data into half when possible.    
 
 For example, we can use flowDensity to extract `plasmablasts` cell
 population as follows:
-```{r plasma, eval=FALSE}
-CD19pCD20n <- flowDensity(obj=bcell, channels=c(8, 6),
+```{r plasma}
+data_dir <- system.file("extdata", package = "flowDensity")
+load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
+#bcell <- flowDensity(f,channels = c(4,9),position = c(NA,T))
+CD19pCD20n <- flowDensity(obj=f, channels=c(8, 6),
                         position=c(T,F))
 plasmablasts <- flowDensity(obj=CD19pCD20n, channels=c(5, 12),
                             position=c(T, T))
-plotDens(getflowFrame(CD19pCD20n), plasmablasts@channels, pch=19)
+```
+
+```{r plot2}
+plotDens(CD19pCD20n@flow.frame, plasmablasts@channels, pch=19)
 points(plasmablasts@filter, type='l', col=2, lwd=2)
 
 ```
+
 To overcome this problem, flowDensity tracks the slope of the curve of the density distribution by comparing the slope of a window of points on the curve with specific length to examine if it drops below a a threshold relative to the adjacent windows.
-This way, once the large cell subset ends and the rare one starts the dramatic change in the slope can be detected by flowDensity and the threshold is set. We call this technique as `slopeTrack`
+This way, once the large cell subset ends and the rare one starts the dramatic change in the slope can be detected by flowDensity and the threshold is set. We call this technique as `trackSlope`.
 
 In seldom cases the slope varies slowly and smoothly so that no relatively huge change is sensed by this technique. If such, the $90^{th}$ percentile is used as a gate.
-A rule of thumb is that if the spread of the density distribution is mostly around the mean, `i.e.`, the standard deviation is small relative to the mean, then most likely the trackSlope returns better results than $90^{th}$.
+A rule of thumb is that if the spread of the density distribution is mostly around the mean, `i.e.`, the standard deviation is small relative to the mean, then most likely the `trackSlope` returns better results than $90^{th}$.
 If neither of these techniques are bale to set a proper threshold, the peak value plus a multiplier of the standard deviation is chosen as the threshold.
 
 flowDensity is able to decide on which of these methods to use.
 However, the user can also modify this decision by setting certain parameters specifically for tricky cell populations.
 
 In the Figure above flowDensity has been used to gate `Plasma blasts` cell population which is a rare cell subset of CD3+CD19+CD20- cell population.
-On the $x$-axis for the marker CD38 the slopeTrack technique is used whereas on the $y$-axis for the markerCD27 HLA-DR the peak plus $1.5\times$standard deviation gives a proper gate.
-Note that the multiplier 1.5 is the default value of the algorithm. However, it can be both set by user or set via analyzing the density distribution by flowDensity}
+On the $x$-axis for the marker CD38 the `trackSlope` technique is used whereas on the $y$-axis for the marker `CD27 HLA-DR` the peak plus $1.5\times$standard deviation gives a proper gate.
+Note that the multiplier 1.5 is the default value of the algorithm. However, it can be both set by user or set via analyzing the density distribution by flowDensity.
 
-To plot the gating results, there is custom `plot(.)` method
-where its arguments are a flowFrame object and an object of class
-CellPopulation. For example:
-
-where `getflowFrame(.)` function is an accessor to get the
-flowFrame of a CellPopulation object.
 
 ## Multiple calls for a single cell population identification
 
 flowDensity can be used recursively to gate a cell population of interest.
 In the example below flowDensity has been used to gate ``lymphocytes'' from CD45 vs SSC. In order to gate lymphocytes more accurate and tighter, flowDensity can be called several times. First time it finds the thresholds for both channels, then returns SSC-CD45+ as an input for the second call. In the last call thresholds of CD45 from the first call and thresholds of SSC from the second call is given to flowDensity to draw ellipse around the lymphocyte population.  In some cases CD45 has only one peak so the percentile of 0.25 is given to flowDensity to detect the right population. For SSC 0.85 would give the optimum threshold.
-```{r twsteps,fig.keep='all'}
+```{r twsteps}
 library(flowCore)
 library(flowDensity)
 data_dir <- system.file("extdata", package = "flowDensity")
@@ -176,31 +186,44 @@ plot(f2, tmp.cp1)
 
 
 plot(f2, tmp.cp2)
-
-
-plotDens(f2, channels=channels)
-points(lymph@filter, type="l", col=2, lwd=2)
 ```
-###Gating cells using a control sample
-To utilize matched control samples (`e.g.` FMO controls), the \textit{flowDensity(.)` function
+
+```{r  plot3}
+par(mfrow=c(1,1))
+plotDens(f2, channels=channels,axes=T)
+lines(lymph@filter, type="l", col=2, lwd=2)
+legend("topleft",legend = paste0("count: ",lymph@cell.count),bty = "n")
+```
+
+It is possible to extract the `flowFrame` object from `CellPopulation`, by `getflowFrame()` function.
+
+```{r frame}
+getflowFrame(lymph)
+```
+
+### Gating cells using a control sample
+
+To utilize matched control samples (`e.g.` FMO controls), the ``flowDensity(.)` function
 has parameters that allow control data to be included. When this option is used, the gating threshold
 is calculated in the control data and applied to the stimulated data. Control samples are added
 using two parameters:
+
 * `use.control`: When set to `TRUE`, flowDensity uses matched control data to
     calculate gating thresholds. This argument can be set for both channels. For example:
     `use.control=c(TRUE, FALSE)}.
 * `control`: This argument accepts flowFrame or CellPopulation objects containing
     control data matched to the specified stimulated data (passed in the `obj` argument).
     Control samples can be included for one or both of the channels. If no control is to be used,
-    the argument should be passed an ``NA'' value (default). For example, if the first channel should
+    the argument should be passed an `NA` value (default). For example, if the first channel should
     be gated using a control but the second channel should be gated normally (using the stimulated
     data), the user would specify `control=c(fmo.data, NA)`.
 
 When control data is used, the other gating arguments (`upper, percentile, n.sd`, etc.)
 are applied to finding the threshold in the control sample instead of the stimulated sample.
 
-For example, an FMO control (`i.e.} negative control) for the `BV421-A' channel can be used
+For example, an FMO control (i.e. negative control) for the `BV421-A` channel can be used
 for gating as follows:
+
 ```{r control,fig.keep='all'}
 load(list.files(pattern = 'sampleFCS_3.Rdata', data_dir, full = TRUE))
 f3
@@ -208,18 +231,20 @@ load(list.files(pattern = 'sampleFCS_3_FMO', data_dir, full = TRUE))
 f3.fmo
 f3.gated <- flowDensity(obj=f3, channels=c('BV421-A', 'FSC-A'),
                         position = c(TRUE, NA),use.control = c(TRUE, F)
-                        , control = c(f3.fmo, NA))
+                        , control = c(f3.fmo, NA),verbose=F)
 f3.fmo.gated <- flowDensity(obj=f3.fmo, channels=c('BV421-A', 'FSC-A'),
                             position=c(TRUE, NA),
-                            gates=c(f3.gated@gates[1], NA))
+                            gates=c(f3.gated@gates[1], NA),verbose=F)
 plot(f3.fmo, f3.fmo.gated)
 
 plot(f3, f3.gated)
 ```
-When only one peak is present in density, flowDensity prints out a message that can be spressed by `verbose=FALSE` for each of the marker. This message infroms you about how cutoff was calculated based on the present arguments (percentile, upper, sd.threshold).
+
+When only one peak is present in density, `flowDensity` prints out a message that can be suppressed by `verbose=FALSE` for each of the marker. This message prints out how cutoff was calculated based on the present arguments (percentile, upper, sd.threshold).
 For finer control, additional gating arguments can be passed that will be
 applied to the control sample. For example, the below example will gate using
-the 98th percentile in control data:
+the 98-th percentile in control data:
+
 ```{r control2,fig.keep='all'}
 f3.gated.98p <- flowDensity(obj=f3, channels=c('BV421-A', 'FSC-A'),
                             position = c(TRUE, NA),use.percentile = c(TRUE, NA),
@@ -232,14 +257,16 @@ plot(f3.fmo, f3.fmo.gated.98p)
 
 plot(f3, f3.gated.98p)
 ```
+
 Note: When using controls, setting `position=TRUE` will treat the data as
 a negative control and extract the population above the threshold. Setting
-`position=FALSE` will treat it as a positive control.
+`position=FALSE` will treat it as a positive control. 
 
 ## Selecting threshold using deGate()
-Another option beside flowDensity is deGate() function, which gives better control over cutoffs.
+
+Another option beside flowDensity is `deGate()` function, which gives better control over cutoffs.
 The output is either a number or a vector of all possible cutoffs if all.cuts=T.
-In the example below, some of the possibilities are provided 
+In the example below, some of the possibilities are provided.
 ```{r deGate}
 load(list.files(pattern = 'sampleFCS_2', data_dir, full = TRUE))
 thresholds <- deGate(obj = f2,channel = 9)
@@ -250,6 +277,59 @@ thresholds.hi <- deGate(f2,channel = 9,use.upper=T,upper=T,alpha = .9)
 
 plotDens(f2,c(9,12))
 abline(v=c(thresholds,thresholds.prcnt,thresholds.lo,thresholds.hi),col=c(1,2,3,4))
+```
+
+## Gating using notSubFrame
+
+Sometimes user would like to remove a population, and continue the gating sequence. This is possible using `notSubFrame`.
+
+```{r nutsub}
+cd19.gate <- deGate(f, channel = 8)
+cd20.gate <- deGate(f,channel = 9)
+cd20.neg <- notSubFrame(f, channels = c(8,9),position = c(F,F),gates=c(cd19.gate,cd20.gate))
+plotDens(f,c(8,9),axes=T)
+lines(cd20.neg@filter, type="l")
+
+```
+
+```{r plo4}
+plotDens(cd20.neg,c(8,9),main="Not CD19-CD20-")
+```
+
+# Latest update features
+
+
+Multiple arguments have been added to `deGate`, and `plotDens`, please check the man page for these functions. These arguments include:
+
+* `after.peak`: When TRUE, it returns a cutoff that is after the maximum peaks. 
+
+* `bimodal`: When TRUE, it returns a cutoff that is after the maximum peaks.
+
+* `slope.w`: 	window.width for tracking the slope, when there is only one peak.
+
+* `density.overlay`: When c(TRUE,TRUE), it overlays density curves over the dot plot.
+
+## Peak extraction
+
+Function `getPeaks` returns all the peaks in a specified channel of `flowFrame`. It also takes a `vector` or `density` object as input.
+
+```{r peaks}
+load(list.files(pattern = 'sampleFCS_2', data_dir, full = TRUE))
+getPeaks(f2,channel = 9)
+
+``` 
+
+You can specify the sensitivity of both `getPeaks` and `deGate` for small peaks, and twin peaks (peaks that are fairly close, and similar in height and their corresponding valleys). This can be done by `tinypeak.removal` and `twin.factor`. See `?deGate()` for more detail.
+
+## Density overlay 
+
+It is possible to overlay density curves over the bi-axial plot, using `plotDens` function.
+
+```{r }
+load(list.files(pattern = 'sampleFCS_2', data_dir, full = TRUE))
+
+plotDens(f2, channels = c(9,12),density.overlay = c(T,T))
+
 ```
 
 # Licensing
