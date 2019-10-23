@@ -299,15 +299,17 @@ plotDens(cd20.neg,c(8,9),main="Not CD19-CD20-")
 # Latest update features
 
 
-Multiple arguments have been added to `deGate`, and `plotDens`, please check the man page for these functions. These arguments include:
+Multiple arguments have been added to `deGate`, and `plotDens`, please check the man page for these functions. Some of these arguments are:
 
-* `after.peak`: When TRUE, it returns a cutoff that is after the maximum peaks. 
+* `after.peak`: When `TRUE`, it returns a cutoff that is after the maximum peaks. 
 
-* `bimodal`: When TRUE, it returns a cutoff that is after the maximum peaks.
+* `bimodal`: When `TRUE`, it returns a cutoff that is after the maximum peaks.
 
-* `slope.w`: 	window.width for tracking the slope, when there is only one peak.
+* `slope.w`: 	Sets window.width for tracking the slope, when there is only one peak.
 
-* `density.overlay`: When c(TRUE,TRUE), it overlays density curves over the dot plot.
+* `count.lim`: Minimum limit for events count in order to calculate the threshold. Default is `20`.
+
+* `density.overlay`: When c(`TRUE`,`TRUE`), it overlays density curves over the dot plot.
 
 ## Peak extraction
 
