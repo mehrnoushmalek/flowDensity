@@ -59,8 +59,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
 \item{show.contour}{
       Default is FALSE. It add the contourLines to plot.
 }
-\item{contour.col}
-{
+\item{contour.col}{
     Color for contourLines. Default is darkgrey.
 }
  \item{adjust.dens}{
