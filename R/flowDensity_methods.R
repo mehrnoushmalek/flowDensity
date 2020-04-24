@@ -131,8 +131,7 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
       warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
       flow.frame <-flowWorkspace::gh_pop_get_data(obj)
     }
-  }
-  if(class(obj)=="CellPopulation"){
+  }else if(class(obj)=="CellPopulation"){
     flow.frame<-obj@flow.frame
     
   }else{
