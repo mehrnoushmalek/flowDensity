@@ -126,12 +126,14 @@
       else f.control1 <- flowDensity::nmRemove(f.control1, col.nm.control1)
       gates[1] <- flowDensity::deGate(f.control1, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
-                                 sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
+                                 sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],slope.w = 4,
+                                 seq.w=4,count.lim=count.lim)
     }
     else if(!is.na(position[1]))
       gates[1] <- flowDensity::deGate(f, channel=channels[1], n.sd=n.sd[1], use.percentile=use.percentile[1], percentile=percentile[1], use.upper=use.upper[1], upper=upper[1],
                                  verbose=verbose[1],twin.factor=twin.factor[1],bimodal=bimodal[1],after.peak = after.peak[1],alpha=alpha[1],
-                                 sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],count.lim=count.lim)
+                                 sd.threshold=sd.threshold[1],all.cuts=all.cuts[1],tinypeak.removal=tinypeak.removal[1],slope.w = 4,
+                                 seq.w=4,count.lim=count.lim)
 
     else gates[1] <- 0
   }
@@ -153,12 +155,14 @@
       else f.control2 <- flowDensity::nmRemove(f.control2, col.nm.control2)
     gates[2] <- flowDensity::deGate(f.control2, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
-                               sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
+                               sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],slope.w = 4,
+                               seq.w=4,count.lim=count.lim)
   }
     else if(!is.na(position[2]))
       gates[2] <- flowDensity::deGate(f, channel=channels[2], n.sd=n.sd[2], use.percentile=use.percentile[2], percentile=percentile[2], use.upper=use.upper[2], upper=upper[2],
                                  verbose=verbose[2],twin.factor=twin.factor[2],bimodal=bimodal[2],after.peak = after.peak[2],alpha=alpha[2],
-                                 sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],count.lim=count.lim)
+                                 sd.threshold=sd.threshold[2],all.cuts=all.cuts[2],tinypeak.removal=tinypeak.removal[2],slope.w = 4,
+                                 seq.w=4,count.lim=count.lim)
     else gates[2] <- 0
   }
   }
