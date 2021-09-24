@@ -90,6 +90,17 @@ deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.uppe
 \item{slope.w}{
  window.width for tracking slope. Default is 4, calculating a slope based on 4 points before and after the current point.
 }
+
+
+
+\item{seq.w}{
+ value used for making the sequence of density points, used in trackSlope.
+}
+
+\item{spar}{
+ value used in smooth.spline function, used in generating the density, default is 0.4.
+}
+
 \item{...}{
    Extra arguments to be passed to smoothSpline function.
   }
