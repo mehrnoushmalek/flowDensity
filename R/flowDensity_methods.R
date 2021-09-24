@@ -36,7 +36,7 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
 
 deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                    bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
-                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4, ...){
+                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4,seq.w=4,spar=.4, ...){
   
   ##========================================================================================================================================
   ## 1D density gating method
@@ -61,6 +61,8 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
   ##   count.lim: minimum limit for event count in order to calculate the threshold. Default is 20
   ##   magnitude: Value between (0,1) for finding changes in the slope that are smaller than max(peak)*magnitude
   ##   slope.w: Value used for tracking slope. It's a value from 1 to length(density$y), that skip looking at all data points, and instead look at point(i) and point(i+w)
+  ##   seq.w: value used for making the sequence of density points, used in trackSlope
+  ##   spar: value used in smooth.spline function, used in generating the density, default is .4
   ## Value:
   ##   cutoffs, i.e. thresholds on the 1D data
   ## Author:
@@ -75,10 +77,11 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
     obj<-.getDataNoNA(obj)
   .densityGating(obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
                  twin.factor=twin.factor,bimodal=bimodal,after.peak=after.peak,alpha = alpha, sd.threshold = sd.threshold,all.cuts = all.cuts,
-                 tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w, ...)
+                 tinypeak.removal=tinypeak.removal, adjust.dens=adjust.dens,count.lim=count.lim,magnitude=magnitude,slope.w=slope.w,
+                 seq.w=seq.w,spar=spar, ...)
 }
 
-getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,...){
+getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,spar=.4,...){
   ##===================================================
   #Finding peaks for flowFrame objects or numeric vectors
   ##==================================================
@@ -107,7 +110,7 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
         cat("Less than 3 cells, returning NA as a Peak.","\n")
       return(list(Peaks=NA, P.ind=0,P.h=0))
     }
-    dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,...)
+    dens <- .densityForPlot(data = x, adjust.dens=adjust.dens,spar=spar,...)
   }
   
   all.peaks <- .getPeaks(dens, peak.removal=tinypeak.removal,twin.factor=twin.factor)
