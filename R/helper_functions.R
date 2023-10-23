@@ -803,7 +803,7 @@ return.bimodal<-function(x,cutoffs)
     if(length(ind) != 0)
       f.exprs <- f.exprs[-ind, ]
     #in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
-     in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),list(x=filter[,1],y=filter[,2])
+     in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),list(x=filter[,1],y=filter[,2]))
       tmp.in.p <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
     if(length(ind) != 0){
       tmp.in.p[ind] <- NA
@@ -992,7 +992,7 @@ return.bimodal<-function(x,cutoffs)
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
        in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),
-                                        list(x=eg[[2]][,1],y=eg[[2]][,2])
+                                        list(x=eg[[2]][,1],y=eg[[2]][,2]))
        tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
       if(length(ind) != 0){
         tmp.in.p[ind] <- NA
@@ -1013,30 +1013,4 @@ return.bimodal<-function(x,cutoffs)
 
 }
 
-.luline <- function(data.points, point, m, up = TRUE, tp=NULL){
-  ##================================================================================================================
-  ## Returns the indexes of the points above and below a given line with slope m and the given 'point' coordination
-  ## Args:
-  ##   data.points: a matrix of point with 2 columns specifying the x and y coordinates
-  ##   point: a point on the line with c(x,y) coordination
-  ##   m: slope of the line
-  ##   up: if TRUE the points above the line are returned, else below
-  ##   tp: a test point with c(x,y) coordination to be evaluated if it is above or below the line
-  ## Value:
-  ##   the indexes of the points below and above the line
-  ##-----------------------------------------------------------------------------------------------------------------
-  yCalc <- function(x, m, d) m*x+d
-  d <- point[2]-m*point[1]
-  if(missing(data.points)){
-    dp <- yCalc(tp[1],m,d)
-    return(as.logical(ifelse(up, tp[2]-dp>0, tp[2]-dp<0)))
-  }else{
-    dp <- sapply(data.points[,1], FUN=function(x) yCalc(x=x,m=m,d=d))
-    if(up)
-      res <- which(data.points[,2]-dp>0)
-    else
-      res <- which(data.points[,2]-dp<0)
-    return(res)
-  }
-}
 
