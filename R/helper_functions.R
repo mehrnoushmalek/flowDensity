@@ -803,7 +803,7 @@ return.bimodal<-function(x,cutoffs)
     if(length(ind) != 0)
       f.exprs <- f.exprs[-ind, ]
     #in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
-     in.p <- sp::point.in.polygon(point.x=f.exprs[,channels[1]], point.y=f.exprs[,channels[2]],pol.x=filter[,1],pol.y=filter[,2])
+     in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),list(x=filter[,1],y=filter[,2])
       tmp.in.p <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
     if(length(ind) != 0){
       tmp.in.p[ind] <- NA
@@ -893,17 +893,17 @@ return.bimodal<-function(x,cutoffs)
     X <- exprs(cell@flow.frame)[index,channels]
     filter <- chull(X)
     filter <- X[c(filter,filter[1]),]
-    poly1 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(filter)), ID=c("c"))))  
+    poly1 <- list(list(x=filter[,1],y=filter[,2])  )
 
-    poly2 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
-
-    if(rgeos::gIntersects( poly1, poly2)){
-       temp <-tryCatch(rgeos::gDifference(poly1,poly2), error=function(ex) return(1))
+    poly2 <- list(list(x=sub.filter[,1],y=sub.filter[,2])  )
+     intersection <- polyclip::polyclip(poly1,poly2,op="intersection")
+    if(length(intersection[[1]][1])>0){
+       temp <-tryCatch(polyclip::polyclip(poly1,poly2,op="minus"), error=function(ex) return(1))
        if (mode(temp)=="numeric")
        {
-         temp <- rgeos::gDifference(poly1,rgeos::gBuffer(poly2))
+         temp <-polyclip::polyclip(poly1,polyclip:polylineoffset(poly2,1)[[1]])
        }
-       filter<-temp@polygons[[1]]@Polygons[[1]]@coords
+       filter<-cbind(c(temp[[1]]$x,temp[[1]]$x[1]),c(temp[[1]]$y,temp[[1]]$y[1]))
     }
   }else
 
@@ -991,7 +991,8 @@ return.bimodal<-function(x,cutoffs)
     
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
-       in.p <- sp::point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
+       in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),
+                                        list(x=eg[[2]][,1],y=eg[[2]][,2])
        tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
       if(length(ind) != 0){
         tmp.in.p[ind] <- NA
