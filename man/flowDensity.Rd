@@ -3,7 +3,7 @@
 \alias{flowDensity}
 \title{ Methods for Function \code{flowDensity} in Package \pkg{flowDensity} }
 \usage{
-	flowDensity(obj, channels, position,node, ...)
+	flowDensity(obj, channels, position, ...)
 }
 \description{
   flowDensity is an automated clustering algorithm which aims to emulate the current practice of manual sequential gating.
@@ -27,9 +27,6 @@
   }
   \item{position}{
     a vector of two logical values specifying the position of the cell subset of interest on the 2D plot.
-  }
-  \item{node}{
-   A character defining the parent population when extracting data from GatingHierarchy. 
   }
  
   \item{...}{

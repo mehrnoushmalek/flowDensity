@@ -13,8 +13,8 @@ setMethod(f="flowDensity",
 )
 setMethod(f="flowDensity",
           signature=c("GatingHierarchy", "ANY", "logical", "ANY"),
-          definition=function(obj, channels, position, node,...){
-            .deGate2D(obj, channels=channels, position=position,node=node, ...)
+          definition=function(obj, channels, position, ...){
+            .deGate2D(obj, channels=channels, position=position, ...)
           }
 )
 
@@ -36,12 +36,12 @@ setMethod(f="plot", signature=c("flowFrame", "CellPopulation"),
 
 deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                    bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
-                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4,seq.w=4,spar=.4, ...){
+                   tinypeak.removal=1/25, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4,seq.w=4,spar=.4, ...){
   
   ##========================================================================================================================================
   ## 1D density gating method
   ## Args:
-  ##   obj: a 'FlowFrame' object, 'CellPopulation' or 'GatingHierarchy'
+  ##   obj: a 'FlowFrame' object, 'CellPopulation'
   ##   channel: a channel's name or an integer to specify the channel
   ##   n.sd: an integer that is multiplied to the standard deviation to determine the place of threshold if 'sd.threshold' is 'TRUE'
   ##   use.percentile: if TRUE, forces to return the 'percentile'th threshold
@@ -56,7 +56,6 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
   ##   sd.threshold: if TRUE, it uses 'n.sd' times standard deviation for gating
   ##   all.cuts: if TRUE, it returns all the cutoff points whose length+1 can roughly estimate the number of cell subsets in that dimension
   ##   tiny.peak.removal: a values in [0,1] for ignoring tiny peaks in density. Default is 1/25
-  ##   node: A character of the parent name to be excluded from gating hierarchy. Default is NA when x is flowFrame or CellPopulation object. Check getNodesof flowWorkspace
   ##   adjust.dens: The smoothness of density, it is same as adjust in density(.). The default value is 1 and should not be changed unless necessary
   ##   count.lim: minimum limit for event count in order to calculate the threshold. Default is 20
   ##   magnitude: Value between (0,1) for finding changes in the slope that are smaller than max(peak)*magnitude
@@ -70,9 +69,7 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
   ##-----------------------------------------------------------------------------------------------------------------------------------------
   
   
-  if (class(obj)=="GatingHierarchy")
-    
-    obj<-gh_pop_get_data(obj,node)
+ 
   if (class(obj)=="CellPopulation")
     obj<-.getDataNoNA(obj)
   .densityGating(obj, channel, n.sd = n.sd, use.percentile = use.percentile, percentile = percentile, use.upper=use.upper,upper = upper,verbose=verbose,
@@ -81,17 +78,13 @@ deGate <- function(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile 
                  seq.w=seq.w,spar=spar, ...)
 }
 
-getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,spar=.4,...){
+getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,verbose=F,twin.factor=1,spar=.4,...){
   ##===================================================
   #Finding peaks for flowFrame objects or numeric vectors
   ##==================================================
   if(class(obj)=="numeric"|class(obj)=="vector"){
     x<-obj
     channel <-NA
-  }else  if (class(obj)=="GatingHierarchy")
-  {
-    obj<-gh_pop_get_data(obj,node)
-    x <- exprs(obj)[, channel]
   }else if (class(obj)=="CellPopulation")
   { 
     obj<-.getDataNoNA(obj)
@@ -117,30 +110,16 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,
   return(all.peaks)
 }
 
-plotDens <- function(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
+plotDens <- function(obj, channels,col, main, xlab, ylab, xlim,ylim, pch=".", 
+                     density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
 dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", ...){
   
   ##===================================================
   ## Plot flowCytometry data with density-based color
   ##---------------------------------------------------
   
-  if (class(obj)=="GatingHierarchy")
-  {
-    if(!is.na(node))
-    {
-      flow.frame <-flowWorkspace::gh_pop_get_data(obj,node)
-    }else
-    {
-      warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-      flow.frame <-flowWorkspace::gh_pop_get_data(obj)
-    }
-  }else if(class(obj)=="CellPopulation"){
-    flow.frame<-obj@flow.frame
-    
-  }else{
+
     flow.frame<-obj
-  }
-  
   f.exprs <- exprs(flow.frame)
   na.ind <-which(is.na(f.exprs[,1]))
   if(length(na.ind)>0)

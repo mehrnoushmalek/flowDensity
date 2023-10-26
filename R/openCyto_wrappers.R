@@ -56,19 +56,9 @@
 .flowDensity.2d <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
                       upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
                       after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-                      gates=c(NA,NA),all.cuts=c(F,F),node=NA,remove.margins=F,count.lim=3, ...)
+                      gates=c(NA,NA),all.cuts=c(F,F),remove.margins=F,count.lim=3, ...)
 {
-  if (class(f)=="GatingHierarchy")
-  {
-    if(node!='root')
-    {
-      f <-flowWorkspace::gh_pop_get_data(f,node)
-    }else
-    {
-      warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-      f <-flowWorkspace::gh_pop_get_data(f)
-    }
-  }
+
   col.nm <- c(grep(colnames(f), pattern = "FSC"), grep(colnames(f), 
           pattern = "SSC"))
   if (length(col.nm) == 0) 

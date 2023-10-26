@@ -11,7 +11,7 @@
 \usage{
 deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.upper=FALSE, upper = NA,verbose=TRUE,twin.factor=.98,
                    bimodal=F,after.peak=NA,alpha = 0.1, sd.threshold = FALSE, all.cuts = FALSE,
-                   tinypeak.removal=1/25,node=NA, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4, ...)
+                   tinypeak.removal=1/25, adjust.dens = 1,count.lim=20,magnitude=.3,slope.w=4,seq.w = 4, spar = 0.4, ...)
 }
 \arguments{
   \item{obj}{
@@ -70,11 +70,7 @@ deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.uppe
     A number in [0,1] to exclude/include tiny peaks in density distribution.
   }
   
-  \item{node}{
-   A character defining the parent population when extracting data from GatingHierarchy. 
-  }
-  
-   \item{adjust.dens}{
+  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
 
   }
@@ -90,8 +86,6 @@ deGate(obj,channel, n.sd = 1.5, use.percentile = FALSE,  percentile =NA,use.uppe
 \item{slope.w}{
  window.width for tracking slope. Default is 4, calculating a slope based on 4 points before and after the current point.
 }
-
-
 
 \item{seq.w}{
  value used for making the sequence of density points, used in trackSlope.

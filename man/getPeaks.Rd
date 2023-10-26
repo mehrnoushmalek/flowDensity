@@ -8,7 +8,7 @@
     Find all peaks in density along with their indices
 }
 \usage{
-getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twin.factor=1,...)
+getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,verbose=F,twin.factor=1,spar = 0.4,...)
 }
 \arguments{
   \item{obj}{
@@ -24,9 +24,6 @@ getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,node=NA,verbose=F,twi
  \item{adjust.dens}{
     The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
-\item{node}{
- Chareacter for the parent population if passing GatingHierarchy object.
-}
 
 \item{verbose}{
  If TRUE, printing warnings.

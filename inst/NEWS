@@ -17,3 +17,8 @@ flowDensity 1.19.8
 ----------------------------------------------------------------
 
 -Adding densityoverlay option to plotDens, and changing sweave to markdown
+
+flowDensity 1.35.1
+----------------------------------------------------------------
+
+-Removing RGEOS, and flowWorkspace dependency

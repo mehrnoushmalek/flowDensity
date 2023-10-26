@@ -10,6 +10,5 @@ Function for tracking changes on the slope has been updated
 notSubFrame() has been updated
 If filter is provided to flowDensity, it uses that filter to gate the population and report cell counts and proportions.
 
-You can now use gatinghierarchy with flowDensity, assuming the Node is given to distract the population.
 
 

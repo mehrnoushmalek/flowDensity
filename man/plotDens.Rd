@@ -11,18 +11,15 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(obj, channels,node=NA ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
+plotDens(obj, channels ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
 dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", ...)
 }
 \arguments{
   \item{obj}{
-  	a 'FlowFrame','GatingHierarchy' or 'cellPopulation' object.
+  	a 'FlowFrame', or 'cellPopulation' object.
   }
   \item{channels}{
     a vector of two channel names or their corresponding indices in the 'flow.frame'.
-  }
-  \item{node}{
-   Only used if gatingHierarchy is provided as an input.It subtractes the flowFrame from the node of gatingHierarchy. see getNodes() in flowWorkspace.
   }
   
   \item{col}{

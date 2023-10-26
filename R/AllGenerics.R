@@ -4,7 +4,6 @@ if(!isGeneric("flowDensity")){
   setGeneric("flowDensity", function(obj,
                                      channels,
                                      position,
-                                     node,
                                      ...)
     standardGeneric("flowDensity")
   )
