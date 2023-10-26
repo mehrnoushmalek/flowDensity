@@ -143,7 +143,7 @@
   ##=========================================================================================================================
   ## 2D density gating method
   ##  Args:
-  ##   f: a 'FlowFrame' object or Gating Hierarchy
+  ##   f: a 'FlowFrame' object 
   ##   channels: a vector of two channel names or their equivalent integer number
   ##   position: a vector of two logical values specifying the position of the cell subset of interest on the 2D plot
   ##   use.percentile, use.upper, upper, percentile, sd.threshold, n.sd, alpha: refer to the arguments of the '.densityGating(.)' function
@@ -153,22 +153,7 @@
   ## Author:
   ##   M. Jafar Taghiyar
   ##--------------------------------------------------------------------------------------------------------------------------
-  g.h <-NULL 
-
-  if (class(f)=="GatingHierarchy")
-  {
-    if(!is.na(node))
-    {
-
-      f <-flowWorkspace::gh_pop_get_data(f,node)
-    }else
-      {
-        warning("For gatingHierarchy objects, node is required, otherwise flowFrame at the root node will be used.")
-        g.h <- f
-
-        f <-flowWorkspace::gh_pop_get_data(f)
-      }
-  }
+ 
   i <- which(!is.na(exprs(f)[,channels[1]]))
   if(length(i)==0)
     warning('invalid flowFrame input: This flowFrame has 0 cells, creating dummy gate.')
@@ -214,15 +199,7 @@
     cell.population@cell.count <- length(inds)
     cell.population@position <-position
     cell.population@proportion <- length(inds)/length(i)*100
-if (class(g.h)=="GatingHierarchy")
-{
-   print("Returning polygonGate...")
-  poly <- polygonGate(.gate  =filter)
- 
-    cell.population@filter <- poly
-}else{
-         cell.population@filter <- filter
-}
+    cell.population@filter <- filter
 
     cell.population@index<- inds
     g1<-ifelse(is.na(position[1]),yes = NA,no=ifelse(test = position[1],yes =min(filter[,1]),no = max(filter[,1]) ))
@@ -325,23 +302,6 @@ if (class(g.h)=="GatingHierarchy")
   
   if(is.numeric(channels))
     channels <- c(colnames(f)[channels[1]], colnames(f)[channels[2]])
- if (class(g.h)=="GatingHierarchy")
-{
-   print("Returning polygonGate...")
-  poly <- polygonGate(.gate  =filter)
-
-  cell.population <- new("CellPopulation",
-                         flow.frame=new.f,
-                         proportion=proportion,
-                         cell.count=cell.count,
-                         channels=channels,
-                         position=position,
-                         gates=gates,
-                         filter=poly ,
-                         index=cell.index
-  )
-    ######Add gs and recompute here
-}else{
  cell.population <- new("CellPopulation",
                          flow.frame=new.f,
                          proportion=proportion,
@@ -351,7 +311,7 @@ if (class(g.h)=="GatingHierarchy")
                          gates=gates,
                          filter=filter,
                          index=cell.index )
-}
+
   return(cell.population)
 
 }
@@ -803,7 +763,7 @@ return.bimodal<-function(x,cutoffs)
     if(length(ind) != 0)
       f.exprs <- f.exprs[-ind, ]
     #in.p <-  inpoly(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]], POK=POK)
-     in.p <- sp::point.in.polygon(point.x=f.exprs[,channels[1]], point.y=f.exprs[,channels[2]],pol.x=filter[,1],pol.y=filter[,2])
+     in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),list(x=filter[,1],y=filter[,2]))
       tmp.in.p <- vector(mode='numeric', length=length(exprs(f)[,channels[1]]))
     if(length(ind) != 0){
       tmp.in.p[ind] <- NA
@@ -893,17 +853,17 @@ return.bimodal<-function(x,cutoffs)
     X <- exprs(cell@flow.frame)[index,channels]
     filter <- chull(X)
     filter <- X[c(filter,filter[1]),]
-    poly1 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(filter)), ID=c("c"))))  
+    poly1 <- list(list(x=filter[,1],y=filter[,2])  )
 
-    poly2 <- sp::SpatialPolygons(list(sp::Polygons(list(Polygon(sub.filter)), ID=c("c")))) 
-
-    if(rgeos::gIntersects( poly1, poly2)){
-       temp <-tryCatch(rgeos::gDifference(poly1,poly2), error=function(ex) return(1))
+    poly2 <- list(list(x=sub.filter[,1],y=sub.filter[,2])  )
+     intersection <- polyclip::polyclip(poly1,poly2,op="intersection")
+    if(length(intersection[[1]][1])>0){
+       temp <-tryCatch(polyclip::polyclip(poly1,poly2,op="minus"), error=function(ex) return(1))
        if (mode(temp)=="numeric")
        {
-         temp <- rgeos::gDifference(poly1,rgeos::gBuffer(poly2))
+         temp <-polyclip::polyclip(poly1,polyclip:polylineoffset(poly2,1)[[1]])
        }
-       filter<-temp@polygons[[1]]@Polygons[[1]]@coords
+       filter<-cbind(c(temp[[1]]$x,temp[[1]]$x[1]),c(temp[[1]]$y,temp[[1]]$y[1]))
     }
   }else
 
@@ -991,7 +951,8 @@ return.bimodal<-function(x,cutoffs)
     
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
-       in.p <- sp::point.in.polygon(point.x=exprs(new.f)[,channels[1]], point.y=exprs(new.f)[,channels[2]],pol.x=eg[[2]][,1],pol.y=eg[[2]][,2])
+       in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),
+                                        list(x=eg[[2]][,1],y=eg[[2]][,2]))
        tmp.in.p <- vector(mode='numeric', length=length(exprs(fcs)[,channels[1]]))
       if(length(ind) != 0){
         tmp.in.p[ind] <- NA
@@ -1012,30 +973,4 @@ return.bimodal<-function(x,cutoffs)
 
 }
 
-.luline <- function(data.points, point, m, up = TRUE, tp=NULL){
-  ##================================================================================================================
-  ## Returns the indexes of the points above and below a given line with slope m and the given 'point' coordination
-  ## Args:
-  ##   data.points: a matrix of point with 2 columns specifying the x and y coordinates
-  ##   point: a point on the line with c(x,y) coordination
-  ##   m: slope of the line
-  ##   up: if TRUE the points above the line are returned, else below
-  ##   tp: a test point with c(x,y) coordination to be evaluated if it is above or below the line
-  ## Value:
-  ##   the indexes of the points below and above the line
-  ##-----------------------------------------------------------------------------------------------------------------
-  yCalc <- function(x, m, d) m*x+d
-  d <- point[2]-m*point[1]
-  if(missing(data.points)){
-    dp <- yCalc(tp[1],m,d)
-    return(as.logical(ifelse(up, tp[2]-dp>0, tp[2]-dp<0)))
-  }else{
-    dp <- sapply(data.points[,1], FUN=function(x) yCalc(x=x,m=m,d=d))
-    if(up)
-      res <- which(data.points[,2]-dp>0)
-    else
-      res <- which(data.points[,2]-dp<0)
-    return(res)
-  }
-}
 
