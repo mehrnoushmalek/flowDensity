@@ -28,6 +28,6 @@
 data_dir <- system.file("extdata", package = "flowDensity")
 load(list.files(pattern = 'sampleFCS_1', data_dir, full = TRUE))
 lymph <- flowDensity(obj=f, channels=c('FSC-A', 'SSC-A'),
-                     position=c(TRUE, FALSE), upper= c(NA, TRUE), debris.gate=c(TRUE, FALSE))
+                     position=c(TRUE, NA))
 f.lymph <- getflowFrame(lymph)
 }

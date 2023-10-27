@@ -31,8 +31,11 @@ getPeaks(obj, channel,tinypeak.removal=1/25, adjust.dens=1,verbose=F,twin.factor
 \item{twin.factor}{
  If smaller than 1, peaks that are of greater than hieght as the maximum peak*twin.factor will be removed.
 }
+\item{spar}{
+ argument to pass to smoothSpline function, default value of spar is 0.4.
+}
  \item{...}{
-   Arguments passed to smoothSpline function, spar is 0.4.
+   Other arguments that can be passed to smoothSpline function.
   }
 }
 \value{

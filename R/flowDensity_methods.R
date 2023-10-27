@@ -1,23 +1,16 @@
 setMethod(f="flowDensity",
-          signature=c("flowFrame", "ANY", "logical", "missing"),
+          signature=c("flowFrame", "ANY", "logical"),
           definition=function(obj, channels, position, ...){
-            .deGate2D(obj, channels=channels, position=position, ...)
+            .deGate2D(f=obj, channels=channels, position=position, ...)
           }
 )
 
 setMethod(f="flowDensity",
-          signature=c("CellPopulation", "ANY", "logical", "missing"),
+          signature=c("CellPopulation", "ANY", "logical"),
           definition=function(obj, channels, position, ...){
-            .deGate2D(obj@flow.frame, channels=channels, position=position, ...)
+            .deGate2D(f=obj@flow.frame, channels=channels, position=position, ...)
           }
 )
-setMethod(f="flowDensity",
-          signature=c("GatingHierarchy", "ANY", "logical", "ANY"),
-          definition=function(obj, channels, position, ...){
-            .deGate2D(obj, channels=channels, position=position, ...)
-          }
-)
-
 
 
 setMethod(f="getflowFrame",
@@ -111,14 +104,15 @@ getPeaks <-  function(obj, channel,tinypeak.removal=1/25, adjust.dens=1,verbose=
 }
 
 plotDens <- function(obj, channels,col, main, xlab, ylab, xlim,ylim, pch=".", 
-                     density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
-dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", ...){
+                     density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,
+dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey",verbose=TRUE, ...){
   
   ##===================================================
   ## Plot flowCytometry data with density-based color
   ##---------------------------------------------------
   
-
+  if (class(obj)=="CellPopulation")
+    obj <- obj@flow.frame
     flow.frame<-obj
   f.exprs <- exprs(flow.frame)
   na.ind <-which(is.na(f.exprs[,1]))

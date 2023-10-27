@@ -32,7 +32,7 @@
     x<-obj
     n<- which(!is.na(x))
     channel <-NA
-  dens <- .densityForPlot(data = x, adjust.dens,spar=spar,...)
+  dens <- .densityForPlot(data = x, adjust.dens,spar=spar)
   stdev <- sd(x,na.rm = T)
   }else if(class(obj)=="density"){
    warning("Percentiles and SD would be meaningless when dealing with density objects. Make sure to not use them with density objects.")
@@ -44,7 +44,7 @@
   }else{
    x <- exprs(obj)[, channel]
    n<- which(!is.na(x))
-  dens <- .densityForPlot(data = x, adjust.dens,spar=spar,...)
+  dens <- .densityForPlot(data = x, adjust.dens,spar=spar)
   stdev <- sd(x,na.rm = T)
   }
 
@@ -101,7 +101,7 @@
       upper <- as.logical(ifelse(peaks>med, FALSE, TRUE))
       cutoffs <- ifelse(upper, peaks+n.sd*stdev, peaks-n.sd*stdev)
     }else{
-      flex.point <- .getFlex(dens, peak.ind=peak.ind,magnitude = magnitude)
+      flex.point <- .getFlex(dens, peak.ind=peak.ind, seq.w=seq.w, magnitude = magnitude)
       if(!is.na(flex.point) & !is.null(flex.point))
       { 
         if(verbose)
@@ -124,8 +124,10 @@
    if(all.cuts)
      return(cutoffs)
 
-     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,seq.w=seq.w,w=slope.w,sd.threshold,n.sd=n.sd,
-                               upper=upper,alpha=alpha,twin.factor=twin.factor,bimodal=bimodal,after=after.peak,magnitude=magnitude, ...)
+     cutoffs <- .getScoreIndex(dat=x, peaks = all.peaks,cutoffs = cutoffs,percentile = percentile,adjust.dens = adjust.dens,
+                               seq.w=seq.w,w=slope.w,sd.threshold,n.sd=n.sd,
+                               upper=upper,alpha=alpha,twin.factor=twin.factor,bimodal=bimodal,after=after.peak,
+                               magnitude=magnitude)
 
    }
    return(cutoffs)
@@ -136,9 +138,10 @@
 
 
 .deGate2D <- function(f, channels, position, n.sd=c(1.5,1.5), use.percentile=c(F,F), percentile=c(NA,NA), use.upper=c(F,F),
-                      upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,tinypeak.removal=c(1/25,1/25),
+                      upper=c(NA,NA), verbose=c(TRUE,TRUE), twin.factor=c(.98,.98), bimodal=c(F,F),filter=NA,
+                      tinypeak.removal=c(1/25,1/25),
                       after.peak=c(NA,NA),alpha=c(0.1,0.1), sd.threshold=c(F,F), use.control=c(F,F), control=c(NA,NA),
-                      gates=c(NA,NA),all.cuts=c(F,F),remove.margins=F,count.lim=3, spar=spar,seq.w=4,w=4,...){
+                      gates=c(NA,NA),all.cuts=c(F,F),remove.margins=F,count.lim=3, spar=.4,seq.w=4,w=4,...){
 
   ##=========================================================================================================================
   ## 2D density gating method
@@ -348,7 +351,7 @@
   
   ## Plot the pdf of channels[1]
   data.chan1 <- exprs(f)[,channels[1]]
-  dens.chan1 <- .densityForPlot(data.chan1, adjust.dens, ...)
+  dens.chan1 <- .densityForPlot(data.chan1, adjust.dens)
   graphics::plot(dens.chan1, xlim=range(data.chan1), type="l", frame.plot=F, axes=F, ann=F)
   
   ## Fill the pdf of channels[1]
@@ -362,7 +365,7 @@
   
   ## Plot the pdf of channels[2]
   data.chan2 <- exprs(f)[,channels[2]]
-  dens.chan2 <- .densityForPlot(data.chan2, adjust.dens, ...)
+  dens.chan2 <- .densityForPlot(data.chan2, adjust.dens)
   graphics::plot(dens.chan2$y, dens.chan2$x, ylim=range(data.chan2), xlim=rev(range(dens.chan2$y)),
        type="l", col=1, frame.plot=F, axes=F, ann=F)
   
@@ -517,8 +520,8 @@ return.bimodal<-function(x,cutoffs)
   return(cutoffs[which.min(scores)])
 }
 
-.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude = magnitude,bimodal,spar=spar
-                           ,after,w=w,seq.w=seq.w, sd.threshold,n.sd,...){
+.getScoreIndex <- function(dat, peaks,cutoffs,percentile,adjust.dens,upper,alpha,twin.factor,magnitude ,bimodal,spar
+                           ,after,w,seq.w, sd.threshold,n.sd){
   ##==========================================================================================
   ## Returns the cutoff based upon which the .densityGating() function decides on the thresholds
   ## Args:
@@ -534,7 +537,7 @@ return.bimodal<-function(x,cutoffs)
   ##------------------------------------------------------------------------------------------
 
   if (class(dat)!="density"){
-     dens <- .densityForPlot(dat, adjust.dens=1,spar=spar, ...)
+     dens <- .densityForPlot(dat, adjust.dens=1,spar=spar)
   }else{
    warning("Percentiles and SD would be meaningless when dealing with density objects. Make sure to not use them with density objects.")
    dens <- dat
@@ -663,7 +666,7 @@ return.bimodal<-function(x,cutoffs)
   return(ifelse(upper,yes= d.x[peak.ind+w*(ind)], no=d.x[(lo+(ind-1)*w)]))
 }
 
-.getFlex <- function(dens, peak.ind, w=2,magnitude = magnitude){
+.getFlex <- function(dens, peak.ind, w=2,seq.w, magnitude ){
 
   
   ##==========================================================================================================================
@@ -677,8 +680,10 @@ return.bimodal<-function(x,cutoffs)
   ## Author:
   ##   M. Jafar Taghiyar
   ##---------------------------------------------------------------------------------------------------------------------------
-  upper.slope <- .trackSlope(dens=dens, peak.ind=peak.ind, alpha=0.1, upper=T, w=w,seq.w = seq.w, return.slope=T,magnitude = magnitude)
-  lower.slope <- .trackSlope(dens=dens, peak.ind=peak.ind, alpha=0.1, upper=F, w=w,seq.w = seq.w, return.slope=T,magnitude = magnitude)
+  upper.slope <- .trackSlope(dens=dens, peak.ind=peak.ind, alpha=0.1, upper=T, w=w,seq.w = seq.w, 
+                             return.slope=T,magnitude = magnitude)
+  lower.slope <- .trackSlope(dens=dens, peak.ind=peak.ind, alpha=0.1, upper=F, w=w,seq.w = seq.w, 
+                             return.slope=T,magnitude = magnitude)
   for(i in 2: (length(upper.slope)-1)){
     if(upper.slope[i]<upper.slope[i+1] & upper.slope[i]<upper.slope[i-1]){
       upper.ind <- (i-1)*w
@@ -731,14 +736,14 @@ return.bimodal<-function(x,cutoffs)
   return(pts)
 }
 
-.densityForPlot <- function(data, adjust.dens=1,spar=.4,...){
+.densityForPlot <- function(data, adjust.dens=1,spar=.4){
   if (length(data)<2)
   {
       warning ("Less than 2 cells, returning NA.")
       return(NA)
  }
   dens <- density(data[which(!is.na(data))], adjust=adjust.dens)
-  dens <- smooth.spline(dens$x, dens$y, spar=spar, ...)
+  dens <- smooth.spline(x = dens$x, y = dens$y, spar=spar)
   dens$y[which(dens$y<0)] <- 0
   return(dens)
 }
@@ -854,20 +859,25 @@ return.bimodal<-function(x,cutoffs)
     filter <- chull(X)
     filter <- X[c(filter,filter[1]),]
     poly1 <- list(list(x=filter[,1],y=filter[,2])  )
-
+    
     poly2 <- list(list(x=sub.filter[,1],y=sub.filter[,2])  )
-     intersection <- polyclip::polyclip(poly1,poly2,op="intersection")
-    if(length(intersection[[1]][1])>0){
-       temp <-tryCatch(polyclip::polyclip(poly1,poly2,op="minus"), error=function(ex) return(1))
-       if (mode(temp)=="numeric")
-       {
-         temp <-polyclip::polyclip(poly1,polyclip:polylineoffset(poly2,1)[[1]])
-       }
-       filter<-cbind(c(temp[[1]]$x,temp[[1]]$x[1]),c(temp[[1]]$y,temp[[1]]$y[1]))
+    intersection <- polyclip::polyclip(poly1,poly2,op="intersection")
+    if (length(intersection))
+    {
+      if(length(intersection[[1]][1])>0){
+        temp <-tryCatch(polyclip::polyclip(poly1,poly2,op="minus"), error=function(ex) return(1))
+        if (mode(temp)=="numeric")
+        {
+          temp <-polyclip::polyclip(poly1,polyclip:polylineoffset(poly2,1)[[1]])
+        }
+        filter<-cbind(c(temp[[1]]$x,temp[[1]]$x[1]),c(temp[[1]]$y,temp[[1]]$y[1]))
+      }
     }
-  }else
-
-  filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+    
+  }else{
+    
+    filter <- cbind(c(-Inf, -Inf,-Inf,-Inf), c(-Inf, -Inf,-Inf,-Inf))
+  }
   colnames(filter) <- channels
   cell@filter <- filter
   cell@index <- index
@@ -948,7 +958,7 @@ return.bimodal<-function(x,cutoffs)
     #tmp <- names(eg)[2]
     #p$x <- eg[[2]][,1]
     #p$y <- eg[[2]][,2]
-    
+    f.exprs <- exprs(new.f)
     ## Gate based on the ellipse not the rectangle produced by 'gates'
     #in.p <- inpoly(x=exprs(new.f)[,channels[1]], y=exprs(new.f)[,channels[2]], POK=p)
        in.p <- polyclip::pointinpolygon(list(x=f.exprs[,channels[1]], y=f.exprs[,channels[2]]),

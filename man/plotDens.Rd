@@ -11,8 +11,8 @@
     the density of the provided channels.
 }
 \usage{
-plotDens(obj, channels ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,verbose=TRUE,
-dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", ...)
+plotDens(obj, channels ,col, main, xlab, ylab, xlim,ylim, pch=".", density.overlay=c(FALSE,FALSE),count.lim=20, dens.col=c("grey48","grey48"),cex=1,
+dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="darkgrey", verbose=TRUE,...)
 }
 \arguments{
   \item{obj}{
@@ -40,18 +40,30 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
 \item{ylim}{
   	a range for the y axis: see '?plot'
   }
+ \item{pch}{
+  	Either an integer specifying a symbol or a single character to be used as the default in plotting points: see '?par'.
+  }
   \item{density.overlay}{
   	Logical vector of length 2, to plot density overlays on the x and y axes. Default is c(FALSE,FALSE).  	
   }
- \item{density.type}{
-  	2-character string giving the type of plot desired, see type in '?plot'
-  }
- \item{density.col}{
+  \item{count.lim}{
+   Cutoff for number of events to set color. Default is 20. Samples with less than 20 cells will be plotted in black.
+}
+ \item{dens.col}{
   	2-character string giving the color of plot desired for density curves.
+  }
+  \item{cex}{
+  Size of the points for the plot. For more information look at ?plot in graphics.
+  }
+  \item{dens.type}{
+  	2-character string giving the type of plot desired.
   }
 \item{transparency}{
       Transparency of the bi-variate plot, to see the densitu curves in the background. The lower it is, the more transparent the plot is.
   	
+  }
+ \item{adjust.dens}{
+    The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
   }
 \item{show.contour}{
       Default is FALSE. It add the contourLines to plot.
@@ -59,18 +71,9 @@ dens.type=c("l","l"),transparency=1, adjust.dens=1,show.contour=F, contour.col="
 \item{contour.col}{
     Color for contourLines. Default is darkgrey.
 }
- \item{adjust.dens}{
-    The smoothness of density in [0,Inf] to be used in density(.). The default value is 1 and should not be changed unless necessary
-  }
-\item{count.lim}{
-   Cutoff for number of events to set color. Default is 20. Samples with less than 20 cells will be plotted in black.
-}
 \item{verbose}{
    Default is True. It will add that the sample has 0 cells in the plot title.
 }
-  \item{pch}{
-  	Either an integer specifying a symbol or a single character to be used as the default in plotting points: see '?par'.
-  }
   \item{...}{
     can be used to provide desired arguments for the plot() function used to
     plot the output results.
