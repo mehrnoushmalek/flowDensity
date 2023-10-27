@@ -1,17 +1,17 @@
 ---
 title: "Automated alternative to the current manual gating practice"
-output: 
+author: "Mehrnoush Malek <mehrmalek@gmail.com>"
+output:
   html_document:
     number_sections: yes
     theme: united
     toc: yes
     toc_float: yes
-author: Mehrnoush Malek <mmalekes@bccrc.ca>, Jafar Taghiyar
-vignette: >   
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteKeywords{flow cytometry, gating, import}
-  %\VignettePackage{flowDensity}   
-  %\VignetteIndexEntry{Introduction to automated gating}   
+  pdf_document:
+    toc: yes
+vignette: "%\\VignetteEngine{knitr::rmarkdown} %\\VignetteKeywords{flow cytometry,
+  gating, import} %\\VignettePackage{flowDensity}    %\\VignetteIndexEntry{Introduction
+  to automated gating}   \n"
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, results = "markup", message = FALSE)

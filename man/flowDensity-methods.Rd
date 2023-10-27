@@ -1,16 +1,8 @@
 \name{flowDensity-methods}
 \docType{methods}
-\alias{flowDensity}
-\alias{flowDensity}
-\alias{flowDensity,CellPopulation,ANY,logical,missing}
-\alias{flowDensity,flowFrame,ANY,logical,missing}
-\alias{flowDensity,GatingHierarchy,ANY,logical,ANY}
+\alias{flowDensity,CellPopulation,ANY,logical}
+\alias{flowDensity,flowFrame,ANY,logical}
 \title{ Methods for Function \code{flowDensity} in Package \pkg{flowDensity} }
-\usage{
-\S4method{flowDensity}{CellPopulation,ANY,logical,missing}(obj, channels, position, ...)
-\S4method{flowDensity}{flowFrame,ANY,logical,missing}(obj, channels, position, ...)
-\S4method{flowDensity}{GatingHierarchy,ANY,logical,ANY}(obj, channels, position, ...)
-}
 \arguments{
 \item{obj}{GatingHierarchy or \code{\linkS4class{CellPopulation}}object
 }
